@@ -1,0 +1,30 @@
+[
+  {
+    "id": "card_001",
+    "customerId": "cust_001",
+    "last4": "4242",
+    "status": "ACTIVE",
+    "network": "VISA"
+  },
+  {
+    "id": "card_002",
+    "customerId": "cust_001",
+    "last4": "8888",
+    "status": "ACTIVE",
+    "network": "MASTERCARD"
+  },
+  {
+    "id": "card_003",
+    "customerId": "cust_002",
+    "last4": "1234",
+    "status": "ACTIVE",
+    "network": "VISA"
+  },
+  {
+    "id": "card_093",
+    "customerId": "cust_017",
+    "last4": "5678",
+    "status": "ACTIVE",
+    "network": "VISA"
+  }
+]

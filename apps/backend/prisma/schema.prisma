@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id            String        @id @default(uuid())
+  name          String
+  emailMasked   String        @map("email_masked")
+  riskFlags     Json?         @map("risk_flags")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  
+  cards         Card[]
+  transactions  Transaction[]
+  devices       Device[]
+  chargebacks   Chargeback[]
+  alerts        Alert[]
+  
+  @@index([emailMasked])
+  @@map("customers")
+}
+
+model Card {
+  id         String        @id @default(uuid())
+  customerId String        @map("customer_id")
+  last4      String        @map("last_4")
+  status     CardStatus    @default(ACTIVE)
+  network    String
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+  
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  transactions Transaction[]
+  
+  @@index([customerId])
+  @@index([status])
+  @@map("cards")
+}
+
+model Transaction {
+  id          String    @id @default(uuid())
+  customerId  String    @map("customer_id")
+  cardId      String    @map("card_id")
+  mcc         String
+  merchant    String
+  amount      Decimal
+  currency    String    @default("USD")
+  timestamp   DateTime
+  deviceId    String?   @map("device_id")
+  geo         Json?
+  riskScore   Float?    @map("risk_score")
+  status      TransactionStatus @default(PENDING)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  card        Card      @relation(fields: [cardId], references: [id])
+  device      Device?   @relation(fields: [deviceId], references: [id])
+  
+  @@index([customerId, timestamp])
+  @@index([cardId])
+  @@index([mcc])
+  @@index([merchant])
+  @@index([timestamp])
+  @@index([status])
+  @@map("transactions")
+}
+
+model Device {
+  id          String        @id @default(uuid())
+  customerId  String        @map("customer_id")
+  deviceId    String        @unique @map("device_id")
+  fingerprint String?
+  lastSeen    DateTime      @map("last_seen")
+  trusted     Boolean       @default(false)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  transactions Transaction[]
+  
+  @@index([customerId])
+  @@map("devices")
+}
+
+model Chargeback {
+  id            String    @id @default(uuid())
+  customerId    String    @map("customer_id")
+  transactionId String?   @map("transaction_id")
+  amount        Decimal
+  reason        String
+  status        ChargebackStatus @default(OPEN)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  resolvedAt    DateTime? @map("resolved_at")
+  
+  customer      Customer  @relation(fields: [customerId], references: [id])
+  
+  @@index([customerId])
+  @@index([status])
+  @@map("chargebacks")
+}
+
+model Alert {
+  id          String      @id @default(uuid())
+  customerId  String      @map("customer_id")
+  type        AlertType
+  severity    AlertSeverity
+  riskScore   Float       @map("risk_score")
+  reasons     Json
+  status      AlertStatus @default(PENDING)
+  metadata    Json?
+  triageData  Json?       @map("triage_data")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  resolvedAt  DateTime?   @map("resolved_at")
+  
+  customer    Customer    @relation(fields: [customerId], references: [id])
+  
+  @@index([customerId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("alerts")
+}
+
+model KnowledgeBase {
+  id        String    @id @default(uuid())
+  title     String
+  anchor    String    @unique
+  content   String
+  chunks    Json
+  tags      String[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  
+  @@index([anchor])
+  @@index([tags])
+  @@map("knowledge_base")
+}
+
+model EvalRun {
+  id          String    @id @default(uuid())
+  name        String
+  status      EvalStatus @default(RUNNING)
+  results     Json
+  metrics     Json
+  startedAt   DateTime  @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  
+  @@index([status])
+  @@index([startedAt])
+  @@map("eval_runs")
+}
+
+model AgentTrace {
+  id          String    @id @default(uuid())
+  sessionId   String    @map("session_id")
+  agentName   String    @map("agent_name")
+  action      String
+  input       Json
+  output      Json?
+  error       String?
+  duration    Int?
+  timestamp   DateTime  @default(now())
+  
+  @@index([sessionId])
+  @@index([agentName])
+  @@index([timestamp])
+  @@map("agent_traces")
+}
+
+enum CardStatus {
+  ACTIVE
+  FROZEN
+  CANCELLED
+}
+
+enum TransactionStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  FLAGGED
+}
+
+enum ChargebackStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  REJECTED
+}
+
+enum AlertType {
+  FRAUD
+  VELOCITY
+  DEVICE_CHANGE
+  UNUSUAL_LOCATION
+  HIGH_RISK_MERCHANT
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertStatus {
+  PENDING
+  IN_REVIEW
+  RESOLVED
+  FALSE_POSITIVE
+  ESCALATED
+}
+
+enum EvalStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}

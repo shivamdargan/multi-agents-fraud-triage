@@ -1,0 +1,42 @@
+[
+  {
+    "id": "dev_001",
+    "customerId": "cust_001",
+    "deviceId": "dev_01",
+    "fingerprint": "abc123def456",
+    "lastSeen": "2025-06-13T14:15:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_002",
+    "customerId": "cust_002",
+    "deviceId": "dev_10",
+    "fingerprint": "xyz789uvw012",
+    "lastSeen": "2025-06-13T08:00:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_003",
+    "customerId": "cust_017",
+    "deviceId": "dev_45",
+    "fingerprint": "ind456mum789",
+    "lastSeen": "2025-06-13T13:02:11Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_004",
+    "customerId": "cust_017",
+    "deviceId": "dev_46",
+    "fingerprint": "lon123gbr456",
+    "lastSeen": "2025-06-13T13:30:00Z",
+    "trusted": false
+  },
+  {
+    "id": "dev_005",
+    "customerId": "cust_017",
+    "deviceId": "dev_47",
+    "fingerprint": "las789veg012",
+    "lastSeen": "2025-06-13T14:00:00Z",
+    "trusted": false
+  }
+]

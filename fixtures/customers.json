@@ -1,0 +1,32 @@
+[
+  {
+    "id": "cust_001",
+    "name": "John Smith",
+    "emailMasked": "j***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": true
+    }
+  },
+  {
+    "id": "cust_002",
+    "name": "Sarah Johnson",
+    "emailMasked": "s***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_017",
+    "name": "Michael Chen",
+    "emailMasked": "m***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Fraud Detection Guidelines",
+    "anchor": "fraud-detection",
+    "chunks": [
+      "High-risk MCCs include 6011 (ATM), 7995 (Gambling), and 5816 (Digital Goods).",
+      "Multiple transactions from different countries within a short time frame indicate potential fraud.",
+      "Velocity checks: More than 5 transactions in an hour or more than $5000 in a day should trigger alerts.",
+      "Device changes coupled with high-value transactions are strong fraud indicators."
+    ]
+  },
+  {
+    "title": "Customer Verification Procedures",
+    "anchor": "customer-verification",
+    "chunks": [
+      "Always verify customer identity through two-factor authentication for high-risk transactions.",
+      "Contact customer via registered phone number for transactions over $1000 from new devices.",
+      "Require additional verification for international transactions from first-time locations.",
+      "VIP customers should have expedited verification processes with dedicated support."
+    ]
+  },
+  {
+    "title": "Card Freeze Protocols",
+    "anchor": "card-freeze",
+    "chunks": [
+      "Immediate card freeze is recommended for confirmed fraud or customer request.",
+      "Temporary freeze can be applied for suspicious activity pending investigation.",
+      "Customer must be notified within 5 minutes of any card freeze action.",
+      "Unfreezing requires customer authentication and reason documentation."
+    ]
+  },
+  {
+    "title": "Dispute Resolution Process",
+    "anchor": "dispute-resolution",
+    "chunks": [
+      "All disputes must be acknowledged within 24 hours of submission.",
+      "Provisional credit should be issued within 2 business days for amounts under $500.",
+      "Investigation timeline: 10 business days for domestic, 20 for international transactions.",
+      "Customer must provide supporting documentation for disputes over $1000."
+    ]
+  }
+]

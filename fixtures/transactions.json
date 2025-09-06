@@ -1,0 +1,98 @@
+[
+  {
+    "id": "txn_01001",
+    "customerId": "cust_017",
+    "cardId": "card_093",
+    "mcc": "6011",
+    "merchant": "ATM Withdrawal",
+    "amount": -10000,
+    "currency": "INR",
+    "timestamp": "2025-06-13T13:02:11Z",
+    "deviceId": "dev_45",
+    "geo": {
+      "lat": 28.61,
+      "lon": 77.21,
+      "country": "IN"
+    }
+  },
+  {
+    "id": "txn_01002",
+    "customerId": "cust_001",
+    "cardId": "card_001",
+    "mcc": "5411",
+    "merchant": "Whole Foods Market",
+    "amount": -125.50,
+    "currency": "USD",
+    "timestamp": "2025-06-13T10:30:00Z",
+    "deviceId": "dev_01",
+    "geo": {
+      "lat": 37.77,
+      "lon": -122.41,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01003",
+    "customerId": "cust_001",
+    "cardId": "card_001",
+    "mcc": "5541",
+    "merchant": "Shell Gas Station",
+    "amount": -65.00,
+    "currency": "USD",
+    "timestamp": "2025-06-13T14:15:00Z",
+    "deviceId": "dev_01",
+    "geo": {
+      "lat": 37.77,
+      "lon": -122.41,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01004",
+    "customerId": "cust_002",
+    "cardId": "card_003",
+    "mcc": "5812",
+    "merchant": "Starbucks",
+    "amount": -12.75,
+    "currency": "USD",
+    "timestamp": "2025-06-13T08:00:00Z",
+    "deviceId": "dev_10",
+    "geo": {
+      "lat": 40.71,
+      "lon": -74.00,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01005",
+    "customerId": "cust_017",
+    "cardId": "card_093",
+    "mcc": "5999",
+    "merchant": "Online Shop XYZ",
+    "amount": -500.00,
+    "currency": "USD",
+    "timestamp": "2025-06-13T13:30:00Z",
+    "deviceId": "dev_46",
+    "geo": {
+      "lat": 51.50,
+      "lon": -0.12,
+      "country": "GB"
+    }
+  },
+  {
+    "id": "txn_01006",
+    "customerId": "cust_017",
+    "cardId": "card_093",
+    "mcc": "7995",
+    "merchant": "Casino Royale",
+    "amount": -2000.00,
+    "currency": "USD",
+    "timestamp": "2025-06-13T14:00:00Z",
+    "deviceId": "dev_47",
+    "geo": {
+      "lat": 36.11,
+      "lon": -115.17,
+      "country": "US"
+    }
+  }
+]
