@@ -68,4 +68,11 @@ export class InsightsController {
   async getReports(@Query('customerId') customerId?: string) {
     return this.insightsService.getReports(customerId);
   }
+
+  @Get(':customerId/summary')
+  @ApiOperation({ summary: 'Get customer insights summary' })
+  @ApiResponse({ status: 200, description: 'Summary retrieved' })
+  async getCustomerSummary(@Param('customerId') customerId: string) {
+    return this.insightsService.getCustomerSummary(customerId);
+  }
 }

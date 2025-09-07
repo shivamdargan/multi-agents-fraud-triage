@@ -207,6 +207,45 @@ export class InsightsService {
     };
   }
 
+  async getCustomerSummary(customerId: string) {
+    const [topMerchants, categories, monthlyTrend] = await Promise.all([
+      this.getTopMerchants(customerId, 5),
+      this.getCategoryBreakdown(customerId),
+      this.getMonthlyTrend(customerId),
+    ]);
+
+    return {
+      topMerchants: topMerchants.merchants || [],
+      categories: categories.categories || [],
+      monthlyTrend: monthlyTrend || [],
+    };
+  }
+
+  private async getMonthlyTrend(customerId: string) {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const transactions = await this.prisma.transaction.findMany({
+      where: {
+        customerId,
+        timestamp: { gte: sixMonthsAgo },
+      },
+      orderBy: { timestamp: 'asc' },
+    });
+
+    const monthlyData = new Map();
+    
+    transactions.forEach(tx => {
+      const month = tx.timestamp.toISOString().slice(0, 7); // YYYY-MM
+      const current = monthlyData.get(month) || { month, amount: 0, count: 0 };
+      current.amount += Math.abs(Number(tx.amount));
+      current.count += 1;
+      monthlyData.set(month, current);
+    });
+
+    return Array.from(monthlyData.values());
+  }
+
   private async calculateTrends(customerId: string, startDate: Date) {
     const previousPeriodStart = new Date(
       startDate.getTime() - (Date.now() - startDate.getTime())

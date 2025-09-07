@@ -11,7 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: Infinity, // Never mark data as stale
-            cacheTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+            // cacheTime  : 30 * 60 * 1000, // Keep in cache for 30 minutes
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
             refetchInterval: false, // Disable automatic refetching

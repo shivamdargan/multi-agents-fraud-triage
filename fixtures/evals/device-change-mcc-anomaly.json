@@ -1,0 +1,27 @@
+{
+  "id": "eval_005",
+  "name": "Device Change + MCC Anomaly",
+  "description": "New device with unusual merchant category, medium risk with customer contact",
+  "input": {
+    "customerId": "cust_005",
+    "deviceChange": true,
+    "newDevice": "dev_25",
+    "transaction": {
+      "id": "txn_01021",
+      "mcc": "6011",
+      "amount": 1000,
+      "merchant": "International ATM"
+    }
+  },
+  "expectedActions": [
+    {
+      "type": "CONTACT_CUSTOMER",
+      "template": "verification_required"
+    }
+  ],
+  "expectedRisk": "MEDIUM",
+  "expectedOutcome": {
+    "status": "PENDING_VERIFICATION",
+    "message": "Customer contact initiated for verification"
+  }
+}

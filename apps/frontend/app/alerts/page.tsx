@@ -8,7 +8,7 @@ import { AlertsQueue } from "@/components/alerts-queue";
 import { useAlerts } from "@/lib/hooks/useFraud";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Clock, CheckCircle, XCircle } from "lucide-react";
+import { AlertCircle, Clock, CheckCircle, XCircle, Shield, FileText, TrendingUp, Activity, CreditCard, Gavel } from "lucide-react";
 
 export default function AlertsPage() {
   const searchParams = useSearchParams();
@@ -28,12 +28,23 @@ export default function AlertsPage() {
     }
   }, [alertId]);
 
+  const alerts = alertsData?.alerts || [];
+  const actionStats = alertsData?.actionStats;
+  
   const stats = {
     total: alertsData?.pagination?.total || 0,
-    pending: alertsData?.alerts?.filter(a => a.status === "PENDING").length || 0,
-    inReview: alertsData?.alerts?.filter(a => a.status === "IN_REVIEW").length || 0,
-    resolved: alertsData?.alerts?.filter(a => a.status === "RESOLVED").length || 0,
-    critical: alertsData?.alerts?.filter(a => a.severity === "CRITICAL").length || 0,
+    pending: alerts.filter(a => a.status === "PENDING").length,
+    inReview: alerts.filter(a => a.status === "IN_REVIEW").length,
+    // Count both RESOLVED and FALSE_POSITIVE as resolved cases
+    resolved: alerts.filter(a => a.status === "RESOLVED" || a.status === "FALSE_POSITIVE").length,
+    falsePositive: alerts.filter(a => a.status === "FALSE_POSITIVE").length,
+    escalated: alerts.filter(a => a.status === "ESCALATED").length,
+    critical: alerts.filter(a => a.severity === "CRITICAL").length,
+    high: alerts.filter(a => a.severity === "HIGH").length,
+    // Calculate response rate
+    responseRate: alerts.length > 0 
+      ? Math.round((alerts.filter(a => a.status !== "PENDING").length / alerts.length) * 100)
+      : 0,
   };
 
   return (
@@ -74,8 +85,9 @@ export default function AlertsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
+      {/* KPI Cards - Only showing Total Alerts, Disputes, Frozen Cards, and High Risk */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-gray-500/5 to-slate-500/5">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Total Alerts</CardTitle>
           </CardHeader>
@@ -84,57 +96,75 @@ export default function AlertsPage() {
               <span className="text-2xl font-bold">{stats.total}</span>
               <AlertCircle className="h-5 w-5 text-muted-foreground" />
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.responseRate}% response rate
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-purple-500/5 to-indigo-500/5">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium">Disputes</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold">{stats.pending}</span>
-              <Clock className="h-5 w-5 text-yellow-500" />
+              <div>
+                <span className="text-2xl font-bold">{actionStats?.disputes?.total || 0}</span>
+                {actionStats?.disputes?.recent > 0 && (
+                  <span className="text-sm text-muted-foreground ml-2">
+                    +{actionStats.disputes.recent} today
+                  </span>
+                )}
+              </div>
+              <Gavel className="h-5 w-5 text-purple-500" />
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Active disputes
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-orange-500/5 to-red-500/5">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">In Review</CardTitle>
+            <CardTitle className="text-sm font-medium">Frozen Cards</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold">{stats.inReview}</span>
-              <AlertCircle className="h-5 w-5 text-blue-500" />
+              <div>
+                <span className="text-2xl font-bold">{actionStats?.cardActions?.totalFrozen || 0}</span>
+                {actionStats?.cardActions?.frozenToday > 0 && (
+                  <span className="text-sm text-muted-foreground ml-2">
+                    +{actionStats.cardActions.frozenToday} today
+                  </span>
+                )}
+              </div>
+              <CreditCard className="h-5 w-5 text-orange-500" />
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Currently frozen
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-red-500/5 to-rose-500/5">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Resolved</CardTitle>
+            <CardTitle className="text-sm font-medium">High Risk</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold">{stats.resolved}</span>
-              <CheckCircle className="h-5 w-5 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Critical</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold">{stats.critical}</span>
+              <div>
+                <span className="text-2xl font-bold">{stats.critical}</span>
+                {stats.high > 0 && (
+                  <span className="text-sm text-muted-foreground ml-2">
+                    +{stats.high} high
+                  </span>
+                )}
+              </div>
               <XCircle className="h-5 w-5 text-red-500" />
             </div>
             {stats.critical > 0 && (
               <Badge variant="destructive" className="mt-2 text-xs">
-                Requires immediate attention
+                Immediate action required
               </Badge>
             )}
           </CardContent>

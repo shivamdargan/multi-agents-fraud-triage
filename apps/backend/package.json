@@ -16,7 +16,8 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "ts-node prisma/seed.ts",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "eval": "ts-node src/cli/eval.ts"
   },
   "dependencies": {
     "@nestjs/bull": "^10.0.0",

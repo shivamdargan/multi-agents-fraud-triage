@@ -48,8 +48,8 @@ const TableRow = memo(({ alert, style }: { alert: Alert; style: React.CSSPropert
   }[alert.severity] || "bg-gray-100 text-gray-800";
 
   const statusColor = {
-    PENDING: "bg-blue-100 text-blue-800",
-    IN_REVIEW: "bg-purple-100 text-purple-800",
+    PENDING: "bg-yellow-100 text-yellow-800",
+    IN_REVIEW: "bg-blue-100 text-blue-800",
     RESOLVED: "bg-green-100 text-green-800",
     FALSE_POSITIVE: "bg-gray-100 text-gray-800",
     ESCALATED: "bg-red-100 text-red-800",

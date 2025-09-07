@@ -1,0 +1,23 @@
+{
+  "id": "eval_008",
+  "name": "Rate Limit and Retry",
+  "description": "API returns 429, system backs off and retries successfully without duplicates",
+  "input": {
+    "customerId": "cust_009",
+    "simulateRateLimit": true,
+    "action": {
+      "type": "FREEZE_CARD",
+      "cardId": "card_010"
+    }
+  },
+  "expectedBehavior": {
+    "firstAttempt": "429_ERROR",
+    "backoffMs": 2000,
+    "secondAttempt": "SUCCESS",
+    "noDuplicates": true
+  },
+  "expectedOutcome": {
+    "status": "SUCCESS_AFTER_RETRY",
+    "attempts": 2
+  }
+}

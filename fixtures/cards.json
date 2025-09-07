@@ -26,5 +26,75 @@
     "last4": "5678",
     "status": "ACTIVE",
     "network": "VISA"
+  },
+  {
+    "id": "card_004",
+    "customerId": "cust_003",
+    "last4": "9876",
+    "status": "ACTIVE",
+    "network": "MASTERCARD"
+  },
+  {
+    "id": "card_005",
+    "customerId": "cust_004",
+    "last4": "3456",
+    "status": "ACTIVE",
+    "network": "VISA"
+  },
+  {
+    "id": "card_006",
+    "customerId": "cust_005",
+    "last4": "7890",
+    "status": "FROZEN",
+    "network": "MASTERCARD"
+  },
+  {
+    "id": "card_007",
+    "customerId": "cust_006",
+    "last4": "2468",
+    "status": "ACTIVE",
+    "network": "VISA"
+  },
+  {
+    "id": "card_008",
+    "customerId": "cust_007",
+    "last4": "1357",
+    "status": "ACTIVE",
+    "network": "AMEX"
+  },
+  {
+    "id": "card_009",
+    "customerId": "cust_008",
+    "last4": "9753",
+    "status": "FROZEN",
+    "network": "MASTERCARD"
+  },
+  {
+    "id": "card_010",
+    "customerId": "cust_009",
+    "last4": "8642",
+    "status": "ACTIVE",
+    "network": "VISA"
+  },
+  {
+    "id": "card_011",
+    "customerId": "cust_010",
+    "last4": "1111",
+    "status": "ACTIVE",
+    "network": "VISA"
+  },
+  {
+    "id": "card_012",
+    "customerId": "cust_011",
+    "last4": "4321",
+    "status": "ACTIVE",
+    "network": "AMEX"
+  },
+  {
+    "id": "card_013",
+    "customerId": "cust_012",
+    "last4": "6789",
+    "status": "FROZEN",
+    "network": "MASTERCARD"
   }
 ]

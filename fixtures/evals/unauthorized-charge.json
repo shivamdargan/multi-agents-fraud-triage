@@ -1,0 +1,23 @@
+{
+  "id": "eval_002",
+  "name": "Unauthorized Charge - Open Dispute",
+  "description": "Customer reports unauthorized charge, system should open dispute with reason code 10.4",
+  "input": {
+    "customerId": "cust_002",
+    "message": "I see an unauthorized charge of ₹4,999 at ABC Store that I didn't make",
+    "transactionId": "txn_01003"
+  },
+  "expectedActions": [
+    {
+      "type": "OPEN_DISPUTE",
+      "transactionId": "txn_01003",
+      "reasonCode": "10.4",
+      "amount": 4999
+    }
+  ],
+  "expectedRisk": "HIGH",
+  "expectedOutcome": {
+    "status": "DISPUTE_OPENED",
+    "caseId": "CASE_*"
+  }
+}

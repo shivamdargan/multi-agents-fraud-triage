@@ -202,6 +202,7 @@ async function main() {
         status: 'PENDING',
         metadata: {
           transactionId: transaction.id,
+          cardId: transaction.cardId,
           amount: transaction.amount.toNumber(),
           merchant: transaction.merchant,
           mcc: transaction.mcc,

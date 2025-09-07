@@ -1,0 +1,28 @@
+{
+  "id": "eval_006",
+  "name": "Past Chargebacks Heavy",
+  "description": "Customer with multiple past chargebacks, escalate and open case",
+  "input": {
+    "customerId": "cust_008",
+    "chargebackHistory": 3,
+    "newAlert": {
+      "type": "SUSPICIOUS_TRANSACTION",
+      "amount": 250
+    }
+  },
+  "expectedActions": [
+    {
+      "type": "ESCALATE",
+      "reason": "Multiple past chargebacks"
+    },
+    {
+      "type": "OPEN_CASE",
+      "priority": "HIGH"
+    }
+  ],
+  "expectedRisk": "HIGH",
+  "expectedOutcome": {
+    "status": "ESCALATED",
+    "caseOpened": true
+  }
+}

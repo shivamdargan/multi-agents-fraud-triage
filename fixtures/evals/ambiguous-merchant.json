@@ -1,0 +1,30 @@
+{
+  "id": "eval_012",
+  "name": "Ambiguous Merchant Name",
+  "description": "Merchant name is ambiguous, system prompts for disambiguation before action",
+  "input": {
+    "customerId": "cust_001",
+    "message": "I don't recognize a charge from 'AMZ'",
+    "ambiguousMerchant": "AMZ"
+  },
+  "expectedActions": [
+    {
+      "type": "DISAMBIGUATION",
+      "prompt": "Did you mean one of these merchants?",
+      "candidates": [
+        {
+          "name": "Amazon.com",
+          "confidence": 0.8
+        },
+        {
+          "name": "AMZ Digital Services",
+          "confidence": 0.6
+        }
+      ]
+    }
+  ],
+  "expectedOutcome": {
+    "status": "DISAMBIGUATION_REQUIRED",
+    "waitingForUser": true
+  }
+}

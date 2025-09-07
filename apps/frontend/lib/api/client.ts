@@ -34,8 +34,12 @@ class ApiClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
         
-        // Create a request key
-        const requestKey = `${config.method}:${config.url}:${JSON.stringify(config.params)}`;
+        // Create a request key including body for POST/PUT/PATCH
+        const bodyKey = (config.method?.toUpperCase() === 'POST' || 
+                        config.method?.toUpperCase() === 'PUT' || 
+                        config.method?.toUpperCase() === 'PATCH') 
+                        ? JSON.stringify(config.data) : '';
+        const requestKey = `${config.method}:${config.url}:${JSON.stringify(config.params)}:${bodyKey}`;
         
         // Check if this request is already pending
         if (pendingRequests.has(requestKey)) {
@@ -63,7 +67,9 @@ class ApiClient {
         if (requestKey) {
           pendingRequests.delete(requestKey);
         }
-        return response.data?.data || response.data;
+        // If the response has a 'data' property, use it (even if null)
+        // Otherwise fall back to response.data
+        return response.data?.hasOwnProperty('data') ? response.data.data : response.data;
       },
       (error: AxiosError<ApiError>) => {
         // Clear pending request on error
@@ -71,6 +77,12 @@ class ApiClient {
         if (requestKey) {
           pendingRequests.delete(requestKey);
         }
+        
+        // Don't treat as error if it's a duplicate request rejection
+        if (error.message === 'Duplicate request') {
+          return Promise.reject(error);
+        }
+        
         const message = error.response?.data?.message || 'An error occurred';
         const statusCode = error.response?.status || 500;
 
@@ -80,7 +92,8 @@ class ApiClient {
         }
 
         if (statusCode >= 500) {
-          toast.error('Server error. Please try again later.');
+          console.error('Server error:', { statusCode, message, url: error.config?.url });
+          // Don't show toast here - let the specific error handlers in hooks handle it
         }
 
         return Promise.reject({

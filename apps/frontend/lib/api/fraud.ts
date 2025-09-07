@@ -53,18 +53,76 @@ export const fraudApi = {
     }>(`/fraud/queue${params}`);
   },
 
-  async freezeCard(cardId: string) {
-    return apiClient.post<{
-      success: boolean;
-      card: any;
-      message: string;
-    }>(`/fraud/actions/freeze-card/${cardId}`);
+  async getCard(cardId: string) {
+    return apiClient.get<{
+      id: string;
+      customerId: string;
+      last4: string;
+      status: 'ACTIVE' | 'FROZEN' | 'CANCELLED';
+      network: string;
+    }>(`/cards/${cardId}`);
   },
 
-  async createDispute(transactionId: string, reason: string) {
-    return apiClient.post(`/fraud/actions/dispute/${transactionId}`, {
+  async freezeCard(cardId: string, otp?: string) {
+    return apiClient.post<{
+      status: 'PENDING_OTP' | 'FROZEN';
+      success?: boolean;
+      card?: any;
+      message?: string;
+    }>('/action/freeze-card', {
+      cardId,
+      otp,
+    });
+  },
+
+  async unfreezeCard(cardId: string, otp?: string) {
+    return apiClient.post<{
+      status: 'PENDING_OTP' | 'ACTIVE';
+      success?: boolean;
+      card?: any;
+      message?: string;
+    }>('/action/unfreeze-card', {
+      cardId,
+      otp,
+    });
+  },
+
+  async createDispute(transactionId: string, reason: string, reasonCode?: string) {
+    return apiClient.post<{
+      caseId: string;
+      status: 'OPEN';
+    }>('/action/open-dispute', {
+      txnId: transactionId,
+      reasonCode: reasonCode || '10.4',
+      confirm: true,
       reason,
     });
+  },
+
+  async getDisputeByTransaction(transactionId: string) {
+    return apiClient.get<{
+      id: string;
+      customerId: string;
+      transactionId: string;
+      amount: string;
+      reason: string;
+      status: 'OPEN' | 'INVESTIGATING' | 'RESOLVED' | 'REJECTED';
+      createdAt: string;
+      resolvedAt?: string;
+    } | null>(`/action/dispute/transaction/${transactionId}`);
+  },
+
+  async getCustomerDisputes(customerId: string) {
+    return apiClient.get<Array<{
+      id: string;
+      customerId: string;
+      transactionId?: string;
+      amount: string;
+      reason: string;
+      status: 'OPEN' | 'INVESTIGATING' | 'RESOLVED' | 'REJECTED';
+      createdAt: string;
+      resolvedAt?: string;
+    }>>(`/action/disputes/customer/${customerId}`);
   },
 
   streamTriage(sessionId: string): EventSource {

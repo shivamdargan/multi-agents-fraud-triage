@@ -94,5 +94,245 @@
       "lon": -115.17,
       "country": "US"
     }
+  },
+  {
+    "id": "txn_01007",
+    "customerId": "cust_003",
+    "cardId": "card_004",
+    "mcc": "5411",
+    "merchant": "Target",
+    "amount": -89.99,
+    "currency": "USD",
+    "timestamp": "2025-01-05T16:45:00Z",
+    "deviceId": "dev_11",
+    "geo": {
+      "lat": 34.05,
+      "lon": -118.24,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01008",
+    "customerId": "cust_004",
+    "cardId": "card_005",
+    "mcc": "6011",
+    "merchant": "ATM Cash Withdrawal",
+    "amount": -500.00,
+    "currency": "USD",
+    "timestamp": "2025-01-05T22:30:00Z",
+    "deviceId": "dev_12",
+    "geo": {
+      "lat": 25.76,
+      "lon": -80.19,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01009",
+    "customerId": "cust_005",
+    "cardId": "card_006",
+    "mcc": "5812",
+    "merchant": "McDonald's",
+    "amount": -15.25,
+    "currency": "USD",
+    "timestamp": "2025-01-05T12:15:00Z",
+    "deviceId": "dev_13",
+    "geo": {
+      "lat": 41.88,
+      "lon": -87.62,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01010",
+    "customerId": "cust_006",
+    "cardId": "card_007",
+    "mcc": "5541",
+    "merchant": "Exxon Mobile",
+    "amount": -75.50,
+    "currency": "USD",
+    "timestamp": "2025-01-05T09:20:00Z",
+    "deviceId": "dev_14",
+    "geo": {
+      "lat": 39.73,
+      "lon": -104.99,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01011",
+    "customerId": "cust_007",
+    "cardId": "card_008",
+    "mcc": "7995",
+    "merchant": "Lucky Casino",
+    "amount": -1500.00,
+    "currency": "USD",
+    "timestamp": "2025-01-05T23:45:00Z",
+    "deviceId": "dev_15",
+    "geo": {
+      "lat": 36.17,
+      "lon": -115.14,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01012",
+    "customerId": "cust_008",
+    "cardId": "card_009",
+    "mcc": "5999",
+    "merchant": "Amazon",
+    "amount": -250.00,
+    "currency": "USD",
+    "timestamp": "2025-01-04T18:30:00Z",
+    "deviceId": "dev_16",
+    "geo": {
+      "lat": 47.60,
+      "lon": -122.33,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01013",
+    "customerId": "cust_009",
+    "cardId": "card_010",
+    "mcc": "5411",
+    "merchant": "Walmart",
+    "amount": -145.75,
+    "currency": "USD",
+    "timestamp": "2025-01-04T14:20:00Z",
+    "deviceId": "dev_17",
+    "geo": {
+      "lat": 32.78,
+      "lon": -96.80,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01014",
+    "customerId": "cust_010",
+    "cardId": "card_011",
+    "mcc": "6011",
+    "merchant": "Bank ATM",
+    "amount": -300.00,
+    "currency": "USD",
+    "timestamp": "2025-01-04T20:15:00Z",
+    "deviceId": "dev_18",
+    "geo": {
+      "lat": 33.44,
+      "lon": -112.07,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01015",
+    "customerId": "cust_011",
+    "cardId": "card_012",
+    "mcc": "5812",
+    "merchant": "Chipotle",
+    "amount": -28.50,
+    "currency": "USD",
+    "timestamp": "2025-01-04T12:45:00Z",
+    "deviceId": "dev_19",
+    "geo": {
+      "lat": 37.77,
+      "lon": -122.41,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01016",
+    "customerId": "cust_012",
+    "cardId": "card_013",
+    "mcc": "7995",
+    "merchant": "Online Poker",
+    "amount": -800.00,
+    "currency": "USD",
+    "timestamp": "2025-01-04T02:30:00Z",
+    "deviceId": "dev_20",
+    "geo": {
+      "lat": 25.77,
+      "lon": -80.19,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01017",
+    "customerId": "cust_001",
+    "cardId": "card_001",
+    "mcc": "5999",
+    "merchant": "Best Buy",
+    "amount": -1200.00,
+    "currency": "USD",
+    "timestamp": "2025-01-03T15:30:00Z",
+    "deviceId": "dev_21",
+    "geo": {
+      "lat": 44.98,
+      "lon": -93.26,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01018",
+    "customerId": "cust_002",
+    "cardId": "card_003",
+    "mcc": "5411",
+    "merchant": "Kroger",
+    "amount": -67.80,
+    "currency": "USD",
+    "timestamp": "2025-01-03T19:15:00Z",
+    "deviceId": "dev_22",
+    "geo": {
+      "lat": 39.16,
+      "lon": -84.45,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01019",
+    "customerId": "cust_003",
+    "cardId": "card_004",
+    "mcc": "5541",
+    "merchant": "Chevron",
+    "amount": -55.00,
+    "currency": "USD",
+    "timestamp": "2025-01-03T08:45:00Z",
+    "deviceId": "dev_23",
+    "geo": {
+      "lat": 34.05,
+      "lon": -118.24,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_01020",
+    "customerId": "cust_004",
+    "cardId": "card_005",
+    "mcc": "5999",
+    "merchant": "Suspicious Online Store",
+    "amount": -2500.00,
+    "currency": "USD",
+    "timestamp": "2025-01-02T03:20:00Z",
+    "deviceId": "dev_24",
+    "geo": {
+      "lat": 55.75,
+      "lon": 37.61,
+      "country": "RU"
+    }
+  },
+  {
+    "id": "txn_01021",
+    "customerId": "cust_005",
+    "cardId": "card_006",
+    "mcc": "6011",
+    "merchant": "International ATM",
+    "amount": -1000.00,
+    "currency": "USD",
+    "timestamp": "2025-01-02T14:30:00Z",
+    "deviceId": "dev_25",
+    "geo": {
+      "lat": 51.50,
+      "lon": -0.12,
+      "country": "GB"
+    }
   }
 ]

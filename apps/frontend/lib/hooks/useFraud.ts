@@ -90,13 +90,23 @@ export function useFreezeCard() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (cardId: string) => fraudApi.freezeCard(cardId),
-    onSuccess: (data) => {
+    mutationFn: ({ cardId, otp }: { cardId: string; otp?: string }) => 
+      fraudApi.freezeCard(cardId, otp),
+    onSuccess: (data, variables) => {
+      // Invalidate all relevant queries that might contain card data
       queryClient.invalidateQueries({ queryKey: ['cards'] });
-      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: ['card', variables.cardId] });
+      queryClient.invalidateQueries({ queryKey: ['customer'] }); // This will refetch customer data with cards
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      
+      if (data.status === 'FROZEN') {
+        toast.success(data.message || 'Card frozen successfully');
+      }
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to freeze card');
+      if (error.statusCode !== 429) { // Don't show error toast for rate limiting
+        toast.error(error.message || 'Failed to freeze card');
+      }
     },
   });
 }
@@ -105,14 +115,70 @@ export function useCreateDispute() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ transactionId, reason }: { transactionId: string; reason: string }) => 
-      fraudApi.createDispute(transactionId, reason),
-    onSuccess: () => {
+    mutationFn: ({ transactionId, reason, reasonCode }: { 
+      transactionId: string; 
+      reason: string;
+      reasonCode?: string;
+    }) => fraudApi.createDispute(transactionId, reason, reasonCode),
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['disputes'] });
-      toast.success('Dispute created successfully');
+      queryClient.invalidateQueries({ queryKey: ['dispute', variables.transactionId] });
+      queryClient.invalidateQueries({ queryKey: ['customer-disputes'] });
+      // Success toast is handled in the component to show case ID
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to create dispute');
+      if (error.statusCode !== 429) { // Don't show error toast for rate limiting
+        toast.error(error.message || 'Failed to create dispute');
+      }
+    },
+  });
+}
+
+export function useDisputeByTransaction(transactionId: string) {
+  return useQuery({
+    queryKey: ['dispute', transactionId],
+    queryFn: () => fraudApi.getDisputeByTransaction(transactionId),
+    enabled: !!transactionId,
+  });
+}
+
+export function useCustomerDisputes(customerId: string) {
+  return useQuery({
+    queryKey: ['customer-disputes', customerId],
+    queryFn: () => fraudApi.getCustomerDisputes(customerId),
+    enabled: !!customerId,
+  });
+}
+
+export function useCard(cardId: string) {
+  return useQuery({
+    queryKey: ['card', cardId],
+    queryFn: () => fraudApi.getCard(cardId),
+    enabled: !!cardId,
+  });
+}
+
+export function useUnfreezeCard() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ cardId, otp }: { cardId: string; otp?: string }) =>
+      fraudApi.unfreezeCard(cardId, otp),
+    onSuccess: (data, variables) => {
+      // Invalidate all relevant queries that might contain card data
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      queryClient.invalidateQueries({ queryKey: ['card', variables.cardId] });
+      queryClient.invalidateQueries({ queryKey: ['customer'] }); // This will refetch customer data with cards
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      
+      if (data.status === 'ACTIVE') {
+        toast.success(data.message || 'Card unfrozen successfully');
+      }
+    },
+    onError: (error: any) => {
+      if (error.statusCode !== 429) {
+        toast.error(error.message || 'Failed to unfreeze card');
+      }
     },
   });
 }
@@ -123,12 +189,19 @@ export function useUpdateAlert() {
   return useMutation({
     mutationFn: ({ id, status, triageData }: { id: string; status: string; triageData?: any }) => 
       fraudApi.updateAlert(id, status, triageData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['alerts'] });
-      toast.success('Alert updated successfully');
+    onSuccess: async (data, variables) => {
+      // Invalidate and refetch immediately
+      await queryClient.invalidateQueries({ queryKey: ['alert', variables.id] });
+      await queryClient.invalidateQueries({ queryKey: ['alerts'] });
+      await queryClient.invalidateQueries({ queryKey: ['fraud-queue'] });
+      // Success toast handled in component
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to update alert');
+      console.error('Failed to update alert:', error);
+      // Only show toast if it's not a duplicate request error and not a server error (already shown by interceptor)
+      if (error.message !== 'Duplicate request' && error.statusCode < 500) {
+        toast.error(error.message || 'Failed to update alert');
+      }
     },
   });
 }

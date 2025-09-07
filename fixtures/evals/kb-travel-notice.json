@@ -1,0 +1,36 @@
+{
+  "id": "eval_011",
+  "name": "KB FAQ - Set Travel Notice",
+  "description": "Customer asks about setting travel notice, system cites KB and provides action card",
+  "input": {
+    "customerId": "cust_012",
+    "message": "How do I set a travel notice for my upcoming trip to Europe?"
+  },
+  "expectedActions": [
+    {
+      "type": "KB_SEARCH",
+      "query": "travel notice"
+    },
+    {
+      "type": "ACTION_CARD",
+      "title": "Set Travel Notice",
+      "steps": [
+        "Login to mobile app",
+        "Go to Card Settings",
+        "Select Travel Notice",
+        "Enter travel dates and destinations"
+      ]
+    }
+  ],
+  "expectedCitations": [
+    {
+      "docId": "kb_doc_travel",
+      "title": "Setting Travel Notices",
+      "anchor": "#travel-notice"
+    }
+  ],
+  "expectedOutcome": {
+    "status": "ANSWERED_WITH_KB",
+    "actionProvided": true
+  }
+}

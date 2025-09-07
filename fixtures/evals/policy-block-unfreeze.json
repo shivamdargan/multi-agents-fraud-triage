@@ -1,0 +1,28 @@
+{
+  "id": "eval_009",
+  "name": "Policy Block - Unfreeze Without Identity",
+  "description": "Attempt to unfreeze card without proper identity verification, should be denied",
+  "input": {
+    "customerId": "cust_010",
+    "action": {
+      "type": "UNFREEZE_CARD",
+      "cardId": "card_011",
+      "withoutIdentity": true
+    }
+  },
+  "expectedActions": [
+    {
+      "type": "DENY",
+      "reason": "Identity verification required"
+    },
+    {
+      "type": "HANDOFF",
+      "to": "HUMAN_AGENT"
+    }
+  ],
+  "expectedOutcome": {
+    "status": "DENIED",
+    "message": "Identity verification required for card unfreeze",
+    "handoff": true
+  }
+}

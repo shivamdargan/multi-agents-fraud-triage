@@ -1,0 +1,21 @@
+{
+  "id": "eval_003",
+  "name": "Duplicate Pending vs Captured",
+  "description": "Customer sees duplicate transaction (pending vs captured), system should explain without dispute",
+  "input": {
+    "customerId": "cust_003",
+    "message": "I see the same transaction twice for $89.99 at Target",
+    "transactionId": "txn_01007"
+  },
+  "expectedActions": [
+    {
+      "type": "EXPLANATION",
+      "noDispute": true
+    }
+  ],
+  "expectedRisk": "LOW",
+  "expectedOutcome": {
+    "status": "EXPLAINED",
+    "message": "This appears to be a pending authorization that will be reconciled with the captured amount"
+  }
+}

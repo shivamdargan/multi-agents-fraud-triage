@@ -98,7 +98,7 @@ export class FraudService {
       if (query.endDate) where.createdAt.lte = new Date(query.endDate);
     }
 
-    const [alerts, total] = await Promise.all([
+    const [alerts, total, actionStats] = await Promise.all([
       this.prisma.alert.findMany({
         where,
         include: {
@@ -112,6 +112,7 @@ export class FraudService {
         take: query.take || 50,
       }),
       this.prisma.alert.count({ where }),
+      this.getActionStatistics(),
     ]);
 
     return {
@@ -121,6 +122,7 @@ export class FraudService {
         skip: query.skip || 0,
         take: query.take || 50,
       },
+      actionStats,
     };
   }
 
@@ -148,27 +150,41 @@ export class FraudService {
   }
 
   async updateAlert(id: string, dto: UpdateAlertDto) {
-    const alert = await this.prisma.alert.update({
-      where: { id },
-      data: {
-        status: dto.status,
-        triageData: dto.triageData,
-        resolvedAt: dto.status === AlertStatus.RESOLVED ? new Date() : undefined,
-      },
-    });
+    try {
+      const alert = await this.prisma.alert.update({
+        where: { id },
+        data: {
+          status: dto.status,
+          triageData: dto.triageData,
+          resolvedAt: dto.status === AlertStatus.RESOLVED || dto.status === AlertStatus.FALSE_POSITIVE 
+            ? new Date() 
+            : undefined,
+        },
+      });
 
-    this.metrics.recordCounter('fraud.alerts.updated', 1, { status: dto.status });
+      this.metrics.recordCounter('fraud.alerts.updated', 1, { status: dto.status });
 
-    return alert;
+      return alert;
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        // Record not found
+        throw new NotFoundException(`Alert with ID ${id} not found`);
+      }
+      throw error;
+    }
   }
 
   async getRiskSignals(customerId: string) {
     const [
+      customer,
       recentTransactions,
       devices,
       chargebacks,
       alerts,
     ] = await Promise.all([
+      this.prisma.customer.findUnique({
+        where: { id: customerId },
+      }),
       this.prisma.transaction.findMany({
         where: {
           customerId,
@@ -192,11 +208,24 @@ export class FraudService {
       }),
     ]);
 
+    // Base risk score from customer flags - aligned with frontend thresholds
+    const flags = customer?.riskFlags as any;
+    let baseRiskScore = 0;
+    if (flags?.previousFraud) {
+      baseRiskScore = 0.75; // HIGH risk base (>= 0.7)
+    } else if (flags?.highRiskCountry) {
+      baseRiskScore = 0.45; // MEDIUM risk base (>= 0.4)
+    } else {
+      baseRiskScore = 0.1; // LOW risk base (< 0.4)
+    }
+
     const velocityScore = this.calculateVelocityScore(recentTransactions);
     const deviceScore = this.calculateDeviceScore(devices);
     const historyScore = this.calculateHistoryScore(chargebacks, alerts);
 
-    const overallRisk = (velocityScore + deviceScore + historyScore) / 3;
+    // Combine base risk with calculated scores (weighted average)
+    // Give more weight to base risk to ensure consistency with list view
+    const overallRisk = (baseRiskScore * 0.7) + ((velocityScore + deviceScore + historyScore) / 3 * 0.3);
 
     return {
       overallRisk,
@@ -217,7 +246,7 @@ export class FraudService {
           alertCount: alerts,
         },
       },
-      recommendations: this.generateRecommendations(overallRisk),
+      recommendations: this.generateRecommendations(overallRisk, flags),
     };
   }
 
@@ -320,21 +349,98 @@ export class FraudService {
     return Math.min(score, 1);
   }
 
-  private generateRecommendations(riskScore: number): string[] {
+  private generateRecommendations(riskScore: number, flags?: any): string[] {
     const recommendations = [];
     
-    if (riskScore > 0.8) {
-      recommendations.push('Immediate card freeze recommended');
-      recommendations.push('Contact customer for verification');
-    } else if (riskScore > 0.6) {
-      recommendations.push('Enhanced monitoring required');
-      recommendations.push('Request additional authentication');
-    } else if (riskScore > 0.4) {
-      recommendations.push('Monitor future transactions');
+    // Add specific recommendations based on flags
+    if (flags?.previousFraud) {
+      recommendations.push('⚠️ Customer has previous fraud history - heightened vigilance required');
+    }
+    if (flags?.highRiskCountry) {
+      recommendations.push('🌍 Customer in high-risk country - verify all cross-border transactions');
+    }
+    if (flags?.vipCustomer) {
+      recommendations.push('⭐ VIP customer - expedite resolution and provide premium support');
+    }
+    
+    // Add score-based recommendations
+    if (riskScore >= 0.7) {
+      recommendations.push('🔴 Immediate card freeze recommended - high risk detected');
+      recommendations.push('📞 Contact customer immediately via registered phone number');
+      recommendations.push('🔍 Review all recent transactions for potential fraud patterns');
+    } else if (riskScore >= 0.4) {
+      recommendations.push('🟡 Enhanced monitoring required for next 30 days');
+      recommendations.push('🔐 Request additional authentication for high-value transactions');
+      recommendations.push('📊 Review spending patterns for anomalies');
     } else {
-      recommendations.push('No immediate action required');
+      recommendations.push('✅ No immediate action required - low risk profile');
+      recommendations.push('📈 Continue standard monitoring procedures');
     }
     
     return recommendations;
+  }
+
+  private async getActionStatistics() {
+    const now = new Date();
+    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalDisputes,
+      recentDisputes,
+      frozenCards,
+      totalFrozenCards,
+      resolvedToday,
+      avgResolutionTime,
+    ] = await Promise.all([
+      // Total disputes
+      this.prisma.chargeback.count(),
+      // Disputes in last 24 hours
+      this.prisma.chargeback.count({
+        where: {
+          createdAt: { gte: last24Hours },
+        },
+      }),
+      // Cards frozen in last 24 hours
+      this.prisma.card.count({
+        where: {
+          status: 'FROZEN',
+          updatedAt: { gte: last24Hours },
+        },
+      }),
+      // Total frozen cards
+      this.prisma.card.count({
+        where: { status: 'FROZEN' },
+      }),
+      // Alerts resolved today
+      this.prisma.alert.count({
+        where: {
+          status: { in: [AlertStatus.RESOLVED, AlertStatus.FALSE_POSITIVE] },
+          resolvedAt: { gte: last24Hours },
+        },
+      }),
+      // Average resolution time
+      this.prisma.$queryRaw<{ avgTime: number }[]>`
+        SELECT AVG(EXTRACT(EPOCH FROM (resolved_at - created_at))) as "avgTime"
+        FROM alerts
+        WHERE resolved_at IS NOT NULL
+        AND created_at >= ${last7Days}
+      `.then(result => result[0]?.avgTime || 0),
+    ]);
+
+    return {
+      disputes: {
+        total: totalDisputes,
+        recent: recentDisputes,
+      },
+      cardActions: {
+        frozenToday: frozenCards,
+        totalFrozen: totalFrozenCards,
+      },
+      resolutions: {
+        today: resolvedToday,
+        avgTimeHours: Math.round((avgResolutionTime / 3600) * 10) / 10, // Convert to hours with 1 decimal
+      },
+    };
   }
 }

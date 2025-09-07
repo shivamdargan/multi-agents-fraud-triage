@@ -8,11 +8,27 @@ interface KPICardProps {
   subtitle?: string;
   icon: LucideIcon;
   trend?: number;
+  variant?: "spend" | "alerts" | "disputes" | "response-time";
 }
 
-export function KPICard({ title, value, subtitle, icon: Icon, trend }: KPICardProps) {
+export function KPICard({ title, value, subtitle, icon: Icon, trend, variant }: KPICardProps) {
+  const getGradientClass = () => {
+    switch (variant) {
+      case "spend":
+        return "bg-gradient-to-br from-green-500/5 to-emerald-500/5";
+      case "alerts":
+        return "bg-gradient-to-br from-red-500/5 to-rose-500/5";
+      case "disputes":
+        return "bg-gradient-to-br from-blue-500/5 to-indigo-500/5";
+      case "response-time":
+        return "bg-gradient-to-br from-purple-500/5 to-violet-500/5";
+      default:
+        return "";
+    }
+  };
+
   return (
-    <Card>
+    <Card className={cn(getGradientClass())}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">

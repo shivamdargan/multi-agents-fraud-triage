@@ -38,5 +38,117 @@
     "fingerprint": "las789veg012",
     "lastSeen": "2025-06-13T14:00:00Z",
     "trusted": false
+  },
+  {
+    "id": "dev_006",
+    "customerId": "cust_003",
+    "deviceId": "dev_11",
+    "fingerprint": "lax234cal567",
+    "lastSeen": "2025-01-05T16:45:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_007",
+    "customerId": "cust_004",
+    "deviceId": "dev_12",
+    "fingerprint": "mia345fla678",
+    "lastSeen": "2025-01-05T22:30:00Z",
+    "trusted": false
+  },
+  {
+    "id": "dev_008",
+    "customerId": "cust_005",
+    "deviceId": "dev_13",
+    "fingerprint": "chi456ill789",
+    "lastSeen": "2025-01-05T12:15:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_009",
+    "customerId": "cust_006",
+    "deviceId": "dev_14",
+    "fingerprint": "den567col890",
+    "lastSeen": "2025-01-05T09:20:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_010",
+    "customerId": "cust_007",
+    "deviceId": "dev_15",
+    "fingerprint": "veg678nev901",
+    "lastSeen": "2025-01-05T23:45:00Z",
+    "trusted": false
+  },
+  {
+    "id": "dev_011",
+    "customerId": "cust_008",
+    "deviceId": "dev_16",
+    "fingerprint": "sea789was012",
+    "lastSeen": "2025-01-04T18:30:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_012",
+    "customerId": "cust_009",
+    "deviceId": "dev_17",
+    "fingerprint": "dal890tex123",
+    "lastSeen": "2025-01-04T14:20:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_013",
+    "customerId": "cust_010",
+    "deviceId": "dev_18",
+    "fingerprint": "phx901ari234",
+    "lastSeen": "2025-01-04T20:15:00Z",
+    "trusted": false
+  },
+  {
+    "id": "dev_014",
+    "customerId": "cust_011",
+    "deviceId": "dev_19",
+    "fingerprint": "sfo012cal345",
+    "lastSeen": "2025-01-04T12:45:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_015",
+    "customerId": "cust_012",
+    "deviceId": "dev_20",
+    "fingerprint": "mia123fla456",
+    "lastSeen": "2025-01-04T02:30:00Z",
+    "trusted": false
+  },
+  {
+    "id": "dev_016",
+    "customerId": "cust_001",
+    "deviceId": "dev_21",
+    "fingerprint": "min234min567",
+    "lastSeen": "2025-01-03T15:30:00Z",
+    "trusted": false
+  },
+  {
+    "id": "dev_017",
+    "customerId": "cust_002",
+    "deviceId": "dev_22",
+    "fingerprint": "cin345ohi678",
+    "lastSeen": "2025-01-03T19:15:00Z",
+    "trusted": true
+  },
+  {
+    "id": "dev_018",
+    "customerId": "cust_004",
+    "deviceId": "dev_24",
+    "fingerprint": "mos456rus789",
+    "lastSeen": "2025-01-02T03:20:00Z",
+    "trusted": false
+  },
+  {
+    "id": "dev_019",
+    "customerId": "cust_005",
+    "deviceId": "dev_25",
+    "fingerprint": "lon567gbr890",
+    "lastSeen": "2025-01-02T14:30:00Z",
+    "trusted": false
   }
 ]

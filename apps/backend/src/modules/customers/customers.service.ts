@@ -20,7 +20,7 @@ export class CustomersService {
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
+        { emailMasked: { contains: search, mode: 'insensitive' } },
       ];
     }
 

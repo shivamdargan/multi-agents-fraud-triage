@@ -57,6 +57,26 @@ export class DashboardService {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 10);
 
+    // Get disputes count
+    const totalDisputes = await this.prisma.chargeback.count({
+      where: {
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+
+    const openDisputes = await this.prisma.chargeback.count({
+      where: {
+        status: { in: ['OPEN', 'INVESTIGATING'] },
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+
     // Calculate average response time (mock for now)
     const avgResponseTime = 145; // seconds
 
@@ -70,6 +90,8 @@ export class DashboardService {
       fraudRate,
       avgResponseTime,
       falsePositiveRate,
+      totalDisputes,
+      openDisputes,
       recentAlerts: recentAlerts.map(alert => ({
         id: alert.id,
         customerId: alert.customerId,

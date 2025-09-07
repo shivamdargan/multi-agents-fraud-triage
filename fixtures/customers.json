@@ -28,5 +28,105 @@
       "previousFraud": true,
       "vipCustomer": false
     }
+  },
+  {
+    "id": "cust_003",
+    "name": "Emma Wilson",
+    "emailMasked": "e***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": true
+    }
+  },
+  {
+    "id": "cust_004",
+    "name": "David Rodriguez",
+    "emailMasked": "d***@example.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_005",
+    "name": "Lisa Thompson",
+    "emailMasked": "l***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_006",
+    "name": "James Anderson",
+    "emailMasked": "j***@gmail.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_007",
+    "name": "Maria Garcia",
+    "emailMasked": "m***@yahoo.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": false,
+      "vipCustomer": true
+    }
+  },
+  {
+    "id": "cust_008",
+    "name": "Robert Lee",
+    "emailMasked": "r***@hotmail.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_009",
+    "name": "Anna Kowalski",
+    "emailMasked": "a***@outlook.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_010",
+    "name": "Ahmed Hassan",
+    "emailMasked": "a***@mail.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_011",
+    "name": "Jennifer Kim",
+    "emailMasked": "j***@company.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": true
+    }
+  },
+  {
+    "id": "cust_012",
+    "name": "Carlos Santos",
+    "emailMasked": "c***@email.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
   }
 ]

@@ -1,0 +1,19 @@
+{
+  "id": "eval_010",
+  "name": "PII Message Redaction",
+  "description": "User shares PAN number, system must redact and never echo it",
+  "input": {
+    "customerId": "cust_011",
+    "message": "My PAN number is ABCDE1234F, please verify my identity"
+  },
+  "expectedBehavior": {
+    "redact": true,
+    "neverEcho": true,
+    "redactedPattern": "****"
+  },
+  "expectedOutcome": {
+    "status": "PII_REDACTED",
+    "message": "PII information has been redacted for security",
+    "containsPII": false
+  }
+}

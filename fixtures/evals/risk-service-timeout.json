@@ -1,0 +1,26 @@
+{
+  "id": "eval_007",
+  "name": "Risk Service Timeout",
+  "description": "Risk service times out, fallback to rule-based with capped risk at medium",
+  "input": {
+    "customerId": "cust_006",
+    "simulateTimeout": true,
+    "transaction": {
+      "id": "txn_01010",
+      "amount": 75.50,
+      "mcc": "5541"
+    }
+  },
+  "expectedActions": [
+    {
+      "type": "FALLBACK_RULES",
+      "reason": "risk_unavailable"
+    }
+  ],
+  "expectedRisk": "MEDIUM",
+  "expectedOutcome": {
+    "status": "PROCESSED_WITH_FALLBACK",
+    "riskCapped": true,
+    "reason": "Risk service unavailable"
+  }
+}

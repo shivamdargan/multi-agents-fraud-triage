@@ -19,6 +19,8 @@ import { HealthModule } from './modules/health/health.module';
 import { AgentsModule } from './agents/agents.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { CustomersModule } from './modules/customers/customers.module';
+import { IngestModule } from './modules/ingest/ingest.module';
+import { CardsModule } from './modules/cards/cards.module';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 
 @Module({
@@ -48,6 +50,7 @@ import { LoggingMiddleware } from './middleware/logging.middleware';
     CommonModule,
     DashboardModule,
     CustomersModule,
+    CardsModule,
     TransactionsModule,
     InsightsModule,
     FraudModule,
@@ -57,6 +60,7 @@ import { LoggingMiddleware } from './middleware/logging.middleware';
     MetricsModule,
     HealthModule,
     AgentsModule,
+    IngestModule,
   ],
 })
 export class AppModule implements NestModule {

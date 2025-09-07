@@ -11,7 +11,7 @@ import { KPICard } from "@/components/kpi-card";
 import { useTransactionStats, useAnomalyDetection } from "@/lib/hooks/useTransactions";
 import { useFraudQueue } from "@/lib/hooks/useFraud";
 import { useDashboardMetrics } from "@/lib/hooks/useDashboard";
-import { DollarSign, AlertTriangle, FileText, Clock, RefreshCw } from "lucide-react";
+import { DollarSign, AlertTriangle, FileText, Clock, RefreshCw, Search, Filter, X } from "lucide-react";
 import { format } from "date-fns";
 
 export default function DashboardPage() {
@@ -54,7 +54,8 @@ export default function DashboardPage() {
   const totalAlerts = metrics?.totalAlerts || alerts.length;
   const activeAlerts = metrics?.activeAlerts || totalAlerts;
   const highRiskPercentage = totalAlerts > 0 ? (highRiskAlerts / totalAlerts) * 100 : 0;
-  const disputesOpened = fraudQueue?.stats?.ESCALATED || 0;
+  const disputesOpened = metrics?.totalDisputes || fraudQueue?.stats?.ESCALATED || 0;
+  const openDisputes = metrics?.openDisputes || 0;
   const avgResponseTime = metrics?.avgResponseTime || 0;
 
   if (statsError || fraudError) {
@@ -144,6 +145,7 @@ export default function DashboardPage() {
               value={`$${totalSpend.toLocaleString()}`}
               icon={DollarSign}
               trend={stats?.trends?.percentageChange}
+              variant="spend"
             />
             <KPICard
               title="High Risk Alerts"
@@ -151,16 +153,20 @@ export default function DashboardPage() {
               subtitle={`${highRiskAlerts} of ${totalAlerts}`}
               icon={AlertTriangle}
               trend={highRiskAlerts > 5 ? 15 : -10}
+              variant="alerts"
             />
             <KPICard
-              title="Disputes Opened"
+              title="Disputes"
               value={disputesOpened.toString()}
+              subtitle={openDisputes > 0 ? `${openDisputes} open` : undefined}
               icon={FileText}
+              variant="disputes"
             />
             <KPICard
               title="Avg Response Time"
               value={`${avgResponseTime}ms`}
               icon={Clock}
+              variant="response-time"
             />
           </>
         )}
@@ -168,61 +174,74 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Input
-              placeholder="Search merchant..."
-              value={merchantFilter}
-              onChange={(e) => setMerchantFilter(e.target.value)}
-            />
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="5411">Grocery</SelectItem>
-                <SelectItem value="5541">Gas Station</SelectItem>
-                <SelectItem value="5812">Restaurant</SelectItem>
-                <SelectItem value="6011">ATM</SelectItem>
-                <SelectItem value="7995">Gambling</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={riskFilter} onValueChange={setRiskFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Risk Level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="critical">Critical</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="secondary" onClick={() => {
-              setMerchantFilter("");
-              setCategoryFilter("all");
-              setRiskFilter("all");
-            }}>
-              Clear Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Live Fraud Triage</CardTitle>
-            {isLoading && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                Loading...
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <CardTitle>Live Fraud Triage</CardTitle>
+              {isLoading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Loading...
+                </div>
+              )}
+            </div>
+            
+            {/* Filters integrated into header */}
+            <div className="flex flex-col sm:flex-row gap-3 p-4 bg-muted/30 rounded-lg border">
+              <div className="relative flex-1 sm:max-w-xs">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search merchant..."
+                  value={merchantFilter}
+                  onChange={(e) => setMerchantFilter(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-            )}
+              
+              <div className="flex gap-2 flex-wrap">
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-48">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="5411">🛒 Grocery</SelectItem>
+                    <SelectItem value="5541">⛽ Gas Station</SelectItem>
+                    <SelectItem value="5812">🍽️ Restaurant</SelectItem>
+                    <SelectItem value="6011">🏧 ATM</SelectItem>
+                    <SelectItem value="7995">🎰 Gambling</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={riskFilter} onValueChange={setRiskFilter}>
+                  <SelectTrigger className="w-36">
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Risk Level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Levels</SelectItem>
+                    <SelectItem value="low">🟢 Low</SelectItem>
+                    <SelectItem value="medium">🟡 Medium</SelectItem>
+                    <SelectItem value="high">🟠 High</SelectItem>
+                    <SelectItem value="critical">🔴 Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    setMerchantFilter("");
+                    setCategoryFilter("all");
+                    setRiskFilter("all");
+                  }}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Clear
+                </Button>
+              </div>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

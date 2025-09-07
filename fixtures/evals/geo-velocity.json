@@ -1,0 +1,33 @@
+{
+  "id": "eval_004",
+  "name": "Geo-Velocity Fraud Pattern",
+  "description": "Transactions from impossible locations (Delhi 10:10, New York 10:40), high risk freeze proposed",
+  "input": {
+    "customerId": "cust_017",
+    "transactions": [
+      {
+        "id": "txn_01001",
+        "location": "Delhi",
+        "time": "10:10",
+        "amount": 10000
+      },
+      {
+        "id": "txn_01005",
+        "location": "New York",
+        "time": "10:40",
+        "amount": 500
+      }
+    ]
+  },
+  "expectedActions": [
+    {
+      "type": "FREEZE_CARD",
+      "reason": "Geo-velocity violation detected"
+    }
+  ],
+  "expectedRisk": "HIGH",
+  "expectedOutcome": {
+    "status": "CARD_FROZEN",
+    "alert": "Impossible travel pattern detected"
+  }
+}

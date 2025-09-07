@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAlert, useTriage, useTriageStream, useFreezeCard, useCreateDispute, useUpdateAlert } from "@/lib/hooks/useFraud";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAlert, useTriage, useTriageStream, useFreezeCard, useUnfreezeCard, useCreateDispute, useUpdateAlert, useCard, useDisputeByTransaction } from "@/lib/hooks/useFraud";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { 
@@ -36,11 +38,21 @@ interface TriageDrawerProps {
 export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: TriageDrawerProps) {
   const [triageSessionId, setTriageSessionId] = useState<string | null>(null);
   const [rateLimited, setRateLimited] = useState(false);
+  const [showOtpDialog, setShowOtpDialog] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const [pendingCardId, setPendingCardId] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<'freeze' | 'unfreeze' | null>(null);
+  const [cardStatus, setCardStatus] = useState<'ACTIVE' | 'FROZEN' | 'CANCELLED' | null>(null);
   const previousOpen = useRef(open);
 
   const { data: alert } = useAlert(alertId || "");
+  const cardId = alert?.metadata?.cardId || "";
+  const transactionId = alert?.metadata?.transactionId || "";
+  const { data: card } = useCard(cardId);
+  const { data: existingDispute } = useDisputeByTransaction(transactionId);
   const triageMutation = useTriage();
   const freezeCardMutation = useFreezeCard();
+  const unfreezeCardMutation = useUnfreezeCard();
   const createDisputeMutation = useCreateDispute();
   const updateAlertMutation = useUpdateAlert();
   const { progress: triageProgress, isComplete } = useTriageStream(triageSessionId);
@@ -84,39 +96,125 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
     }
   };
 
-  const handleFreezeCard = async () => {
-    if (rateLimited) return;
+  useEffect(() => {
+    if (card) {
+      setCardStatus(card.status);
+    }
+  }, [card]);
 
-    const cardId = "card_001"; // In real app, get from alert data
+  const handleFreezeCard = async () => {
+    if (rateLimited || !cardId) return;
     
     try {
-      await freezeCardMutation.mutateAsync(cardId);
-      onActionComplete();
-      toast.success("Card frozen successfully");
+      const result = await freezeCardMutation.mutateAsync({ cardId });
+      
+      if (result.status === 'PENDING_OTP') {
+        setPendingCardId(cardId);
+        setPendingAction('freeze');
+        setShowOtpDialog(true);
+        toast.info("Please enter OTP to confirm card freeze");
+      } else if (result.status === 'FROZEN') {
+        setCardStatus('FROZEN');
+        onActionComplete();
+        toast.success("Card frozen successfully");
+      }
     } catch (error: any) {
       if (error.statusCode === 429) {
         setRateLimited(true);
         setTimeout(() => setRateLimited(false), 2000);
         toast.error("Too many requests — try again in 2s");
+      } else {
+        toast.error(error.message || "Failed to freeze card");
       }
     }
   };
 
-  const handleCreateDispute = async () => {
-    if (rateLimited) return;
-
+  const handleUnfreezeCard = async () => {
+    if (rateLimited || !cardId) return;
+    
     try {
-      await createDisputeMutation.mutateAsync({
-        transactionId: "txn_001",
-        reason: "Fraudulent transaction",
-      });
-      onActionComplete();
-      toast.success("Dispute created successfully");
+      const result = await unfreezeCardMutation.mutateAsync({ cardId });
+      
+      if (result.status === 'PENDING_OTP') {
+        setPendingCardId(cardId);
+        setPendingAction('unfreeze');
+        setShowOtpDialog(true);
+        toast.info("Please enter OTP to confirm card unfreeze");
+      } else if (result.status === 'ACTIVE') {
+        setCardStatus('ACTIVE');
+        onActionComplete();
+        toast.success("Card unfrozen successfully");
+      }
     } catch (error: any) {
       if (error.statusCode === 429) {
         setRateLimited(true);
         setTimeout(() => setRateLimited(false), 2000);
         toast.error("Too many requests — try again in 2s");
+      } else {
+        toast.error(error.message || "Failed to unfreeze card");
+      }
+    }
+  };
+
+  const handleOtpSubmit = async () => {
+    if (!pendingCardId || !otpValue || !pendingAction) return;
+
+    try {
+      if (pendingAction === 'freeze') {
+        const result = await freezeCardMutation.mutateAsync({ 
+          cardId: pendingCardId, 
+          otp: otpValue 
+        });
+        
+        if (result.status === 'FROZEN') {
+          setCardStatus('FROZEN');
+          setShowOtpDialog(false);
+          setOtpValue("");
+          setPendingCardId(null);
+          setPendingAction(null);
+          onActionComplete();
+        }
+      } else if (pendingAction === 'unfreeze') {
+        const result = await unfreezeCardMutation.mutateAsync({ 
+          cardId: pendingCardId, 
+          otp: otpValue 
+        });
+        
+        if (result.status === 'ACTIVE') {
+          setCardStatus('ACTIVE');
+          setShowOtpDialog(false);
+          setOtpValue("");
+          setPendingCardId(null);
+          setPendingAction(null);
+          onActionComplete();
+        }
+      }
+    } catch (error: any) {
+      toast.error("Invalid OTP. Please try again.");
+    }
+  };
+
+  const handleCreateDispute = async () => {
+    if (rateLimited || !transactionId || existingDispute?.id) return;
+    
+    try {
+      const result = await createDisputeMutation.mutateAsync({
+        transactionId,
+        reason: "Fraudulent transaction",
+        reasonCode: "10.4",
+      });
+      
+      if (result.caseId) {
+        onActionComplete();
+        toast.success(`Dispute created successfully. Case ID: ${result.caseId}`);
+      }
+    } catch (error: any) {
+      if (error.statusCode === 429) {
+        setRateLimited(true);
+        setTimeout(() => setRateLimited(false), 2000);
+        toast.error("Too many requests — try again in 2s");
+      } else {
+        toast.error(error.message || "Failed to create dispute");
       }
     }
   };
@@ -129,9 +227,15 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
         id: alertId,
         status: "FALSE_POSITIVE",
       });
+      
+      // Call onActionComplete to refresh the parent list
       onActionComplete();
-      onOpenChange(false);
+      
+      // Show success toast
       toast.success("Alert marked as false positive");
+      
+      // Don't close the drawer immediately - let the user see the updated status
+      // The user can close it manually if they want
     } catch (error: any) {
       if (error.statusCode === 429) {
         setRateLimited(true);
@@ -159,13 +263,14 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
   if (!alert) return null;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[600px] sm:max-w-[600px]" aria-label="Triage Drawer">
-        <SheetHeader>
-          <SheetTitle>Fraud Alert Triage</SheetTitle>
-        </SheetHeader>
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="w-[600px] sm:max-w-[600px]" aria-label="Triage Drawer">
+          <SheetHeader className="px-6 py-6">
+            <SheetTitle>Fraud Alert Triage</SheetTitle>
+          </SheetHeader>
 
-        <div className="mt-6 space-y-4">
+        <div className="px-6 pb-6 space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Shield className="h-6 w-6 text-primary" />
@@ -291,6 +396,28 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
 
             <TabsContent value="actions" className="mt-4">
               <div className="space-y-4">
+                {cardId && (
+                  <div className="mb-4 p-3 bg-muted rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <CreditCard className="h-4 w-4" />
+                        <span className="text-sm font-medium">
+                          Card ****{card?.last4 || "****"}
+                        </span>
+                      </div>
+                      <Badge 
+                        variant={
+                          cardStatus === 'FROZEN' ? 'destructive' : 
+                          cardStatus === 'ACTIVE' ? 'default' : 
+                          'secondary'
+                        }
+                      >
+                        {cardStatus || 'LOADING'}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+
                 {alert.metadata?.otpRequired && (
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
@@ -301,35 +428,81 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
                 )}
 
                 <div className="space-y-2">
-                  <Button
-                    className="w-full justify-start"
-                    variant="destructive"
-                    onClick={handleFreezeCard}
-                    disabled={freezeCardMutation.isPending || rateLimited}
-                  >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Freeze Card
-                  </Button>
+                  {cardId && cardStatus === 'ACTIVE' && (
+                    <Button
+                      className="w-full justify-start"
+                      variant="destructive"
+                      onClick={handleFreezeCard}
+                      disabled={freezeCardMutation.isPending || rateLimited || !cardId}
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      Freeze Card
+                    </Button>
+                  )}
 
-                  <Button
-                    className="w-full justify-start"
-                    variant="outline"
-                    onClick={handleCreateDispute}
-                    disabled={createDisputeMutation.isPending || rateLimited}
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Open Dispute
-                  </Button>
+                  {cardId && cardStatus === 'FROZEN' && (
+                    <Button
+                      className="w-full justify-start"
+                      variant="default"
+                      onClick={handleUnfreezeCard}
+                      disabled={unfreezeCardMutation.isPending || rateLimited || !cardId}
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Unfreeze Card
+                    </Button>
+                  )}
 
-                  <Button
-                    className="w-full justify-start"
-                    variant="secondary"
-                    onClick={handleMarkFalsePositive}
-                    disabled={updateAlertMutation.isPending || rateLimited}
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Mark False Positive
-                  </Button>
+                  {transactionId && existingDispute && existingDispute.id && (
+                    <div className="mb-2 p-3 bg-muted rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-4 w-4" />
+                          <span className="text-sm font-medium">
+                            Dispute #{existingDispute.id}
+                          </span>
+                        </div>
+                        <Badge 
+                          variant={
+                            existingDispute.status === 'RESOLVED' ? 'default' : 
+                            existingDispute.status === 'REJECTED' ? 'destructive' : 
+                            existingDispute.status === 'INVESTIGATING' ? 'secondary' : 
+                            'outline'
+                          }
+                        >
+                          {existingDispute.status}
+                        </Badge>
+                      </div>
+                      {existingDispute.reason && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {existingDispute.reason}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {transactionId && (!existingDispute || !existingDispute?.id) && (
+                    <Button
+                      className="w-full justify-start"
+                      variant="outline"
+                      onClick={handleCreateDispute}
+                      disabled={createDisputeMutation.isPending || rateLimited || !transactionId}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Open Dispute
+                    </Button>
+                  )}
+
+                  {alert?.status !== 'FALSE_POSITIVE' && alert?.status !== 'RESOLVED' && (
+                    <Button
+                      className="w-full justify-start"
+                      variant="secondary"
+                      onClick={handleMarkFalsePositive}
+                      disabled={updateAlertMutation.isPending || rateLimited}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Mark False Positive
+                    </Button>
+                  )}
                 </div>
 
                 {rateLimited && (
@@ -346,6 +519,46 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
         </div>
       </SheetContent>
     </Sheet>
+
+    <Dialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Enter OTP</DialogTitle>
+          <DialogDescription>
+            Please enter the OTP sent to your registered mobile number to confirm the card {pendingAction === 'freeze' ? 'freeze' : 'unfreeze'}.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <Input
+            type="text"
+            placeholder="Enter 6-digit OTP"
+            value={otpValue}
+            onChange={(e) => setOtpValue(e.target.value)}
+            maxLength={6}
+            className="text-center text-lg tracking-widest"
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowOtpDialog(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleOtpSubmit}
+            disabled={otpValue.length !== 6 || (pendingAction === 'freeze' ? freezeCardMutation.isPending : unfreezeCardMutation.isPending)}
+          >
+            {freezeCardMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              "Confirm"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
 
