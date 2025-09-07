@@ -1,0 +1,322 @@
+[
+  {
+    "id": "txn_demo_001",
+    "customerId": "cust_001",
+    "cardId": "card_001",
+    "mcc": "5411",
+    "merchant": "Whole Foods Market",
+    "amount": -89.45,
+    "currency": "USD",
+    "timestamp": "2025-09-07T14:30:00Z",
+    "deviceId": "dev_001",
+    "geo": {
+      "lat": 40.7128,
+      "lon": -74.0060,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_002",
+    "customerId": "cust_004",
+    "cardId": "card_004",
+    "mcc": "6011",
+    "merchant": "ATM Withdrawal - Chase Bank",
+    "amount": -5000,
+    "currency": "USD",
+    "timestamp": "2025-09-07T15:45:00Z",
+    "deviceId": "dev_unknown_001",
+    "geo": {
+      "lat": 34.0522,
+      "lon": -118.2437,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_003",
+    "customerId": "cust_009",
+    "cardId": "card_009",
+    "mcc": "7995",
+    "merchant": "Lucky Slots Casino",
+    "amount": -2500,
+    "currency": "USD",
+    "timestamp": "2025-09-07T20:15:00Z",
+    "deviceId": "dev_009",
+    "geo": {
+      "lat": 36.1699,
+      "lon": -115.1398,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_004",
+    "customerId": "cust_007",
+    "cardId": "card_007",
+    "mcc": "5812",
+    "merchant": "McDonald's #4567",
+    "amount": -12.99,
+    "currency": "USD",
+    "timestamp": "2025-09-07T12:30:00Z",
+    "deviceId": "dev_007",
+    "geo": {
+      "lat": 41.8781,
+      "lon": -87.6298,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_005",
+    "customerId": "cust_016",
+    "cardId": "card_016",
+    "mcc": "5541",
+    "merchant": "Shell Gas Station",
+    "amount": -75.00,
+    "currency": "USD",
+    "timestamp": "2025-09-07T08:20:00Z",
+    "deviceId": "dev_unknown_002",
+    "geo": {
+      "lat": 25.7617,
+      "lon": -80.1918,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_006",
+    "customerId": "cust_012",
+    "cardId": "card_012",
+    "mcc": "4111",
+    "merchant": "Delta Air Lines",
+    "amount": -850.00,
+    "currency": "USD",
+    "timestamp": "2025-09-07T16:45:00Z",
+    "deviceId": "dev_012",
+    "geo": {
+      "lat": 33.6407,
+      "lon": -84.4277,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_007",
+    "customerId": "cust_005",
+    "cardId": "card_005",
+    "mcc": "5411",
+    "merchant": "Target Store #1234",
+    "amount": -156.78,
+    "currency": "USD",
+    "timestamp": "2025-09-07T19:30:00Z",
+    "deviceId": "dev_005",
+    "geo": {
+      "lat": 39.7392,
+      "lon": -104.9903,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_008",
+    "customerId": "cust_013",
+    "cardId": "card_013",
+    "mcc": "5814",
+    "merchant": "Starbucks Coffee",
+    "amount": -6.45,
+    "currency": "USD",
+    "timestamp": "2025-09-07T07:15:00Z",
+    "deviceId": "dev_013",
+    "geo": {
+      "lat": 47.6062,
+      "lon": -122.3321,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_009",
+    "customerId": "cust_017",
+    "cardId": "card_017",
+    "mcc": "6011",
+    "merchant": "ATM Withdrawal - BOA",
+    "amount": -1200,
+    "currency": "USD",
+    "timestamp": "2025-09-07T22:45:00Z",
+    "deviceId": "dev_unknown_003",
+    "geo": {
+      "lat": 32.7767,
+      "lon": -96.7970,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_010",
+    "customerId": "cust_003",
+    "cardId": "card_003",
+    "mcc": "5411",
+    "merchant": "Costco Wholesale",
+    "amount": -234.67,
+    "currency": "USD",
+    "timestamp": "2025-09-07T13:20:00Z",
+    "deviceId": "dev_003",
+    "geo": {
+      "lat": 37.7749,
+      "lon": -122.4194,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_011",
+    "customerId": "cust_011",
+    "cardId": "card_011",
+    "mcc": "5812",
+    "merchant": "Olive Garden",
+    "amount": -89.32,
+    "currency": "USD",
+    "timestamp": "2025-09-07T18:45:00Z",
+    "deviceId": "dev_011",
+    "geo": {
+      "lat": 35.2271,
+      "lon": -80.8431,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_012",
+    "customerId": "cust_020",
+    "cardId": "card_020",
+    "mcc": "5541",
+    "merchant": "Exxon Mobil",
+    "amount": -45.00,
+    "currency": "USD",
+    "timestamp": "2025-09-07T14:10:00Z",
+    "deviceId": "dev_020",
+    "geo": {
+      "lat": 29.7604,
+      "lon": -95.3698,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_013",
+    "customerId": "cust_008",
+    "cardId": "card_008",
+    "mcc": "5411",
+    "merchant": "Walmart Supercenter",
+    "amount": -67.89,
+    "currency": "USD",
+    "timestamp": "2025-09-07T11:30:00Z",
+    "deviceId": "dev_008",
+    "geo": {
+      "lat": 33.4484,
+      "lon": -112.0740,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_014",
+    "customerId": "cust_016",
+    "cardId": "card_016",
+    "mcc": "7995",
+    "merchant": "Ocean Resort Casino",
+    "amount": -3000,
+    "currency": "USD",
+    "timestamp": "2025-09-07T23:30:00Z",
+    "deviceId": "dev_unknown_004",
+    "geo": {
+      "lat": 39.3643,
+      "lon": -74.4229,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_015",
+    "customerId": "cust_002",
+    "cardId": "card_002",
+    "mcc": "5812",
+    "merchant": "Chipotle Mexican Grill",
+    "amount": -14.75,
+    "currency": "USD",
+    "timestamp": "2025-09-07T12:00:00Z",
+    "deviceId": "dev_002",
+    "geo": {
+      "lat": 39.9526,
+      "lon": -75.1652,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_016",
+    "customerId": "cust_006",
+    "cardId": "card_006",
+    "mcc": "5411",
+    "merchant": "Trader Joe's",
+    "amount": -43.20,
+    "currency": "USD",
+    "timestamp": "2025-09-07T16:15:00Z",
+    "deviceId": "dev_006",
+    "geo": {
+      "lat": 42.3601,
+      "lon": -71.0589,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_017",
+    "customerId": "cust_014",
+    "cardId": "card_014",
+    "mcc": "5814",
+    "merchant": "Dunkin' Donuts",
+    "amount": -8.50,
+    "currency": "USD",
+    "timestamp": "2025-09-07T08:45:00Z",
+    "deviceId": "dev_014",
+    "geo": {
+      "lat": 44.9778,
+      "lon": -93.2650,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_018",
+    "customerId": "cust_010",
+    "cardId": "card_010",
+    "mcc": "5541",
+    "merchant": "Chevron Station",
+    "amount": -52.30,
+    "currency": "USD",
+    "timestamp": "2025-09-07T17:20:00Z",
+    "deviceId": "dev_010",
+    "geo": {
+      "lat": 45.5152,
+      "lon": -122.6784,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_019",
+    "customerId": "cust_019",
+    "cardId": "card_019",
+    "mcc": "5411",
+    "merchant": "Kroger #789",
+    "amount": -98.76,
+    "currency": "USD",
+    "timestamp": "2025-09-07T15:30:00Z",
+    "deviceId": "dev_019",
+    "geo": {
+      "lat": 39.1031,
+      "lon": -84.5120,
+      "country": "US"
+    }
+  },
+  {
+    "id": "txn_demo_020",
+    "customerId": "cust_018",
+    "cardId": "card_018",
+    "mcc": "5812",
+    "merchant": "The Capital Grille",
+    "amount": -185.00,
+    "currency": "USD",
+    "timestamp": "2025-09-07T20:30:00Z",
+    "deviceId": "dev_018",
+    "geo": {
+      "lat": 38.9072,
+      "lon": -77.0369,
+      "country": "US"
+    }
+  }
+]

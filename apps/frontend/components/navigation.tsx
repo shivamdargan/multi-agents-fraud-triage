@@ -8,7 +8,6 @@ import {
   AlertCircle,
   Users,
   FileBarChart,
-  Settings,
   Shield,
 } from "lucide-react";
 
@@ -17,7 +16,6 @@ const navigation = [
   { name: "Alerts", href: "/alerts", icon: AlertCircle },
   { name: "Customers", href: "/customers", icon: Users },
   { name: "Evaluations", href: "/evals", icon: FileBarChart },
-  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Navigation() {

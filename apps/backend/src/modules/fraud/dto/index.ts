@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsUUID, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsUUID, IsObject, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -27,24 +27,34 @@ export enum AlertStatus {
 
 export class TriageRequestDto {
   @ApiProperty()
-  @IsUUID()
+  @IsString()
   customerId: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID()
+  @IsString()
   transactionId?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   reason?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  alertId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  forceRerun?: boolean;
 }
 
 export class AlertQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID()
+  @IsString()
   customerId?: string;
 
   @ApiPropertyOptional({ enum: AlertType })

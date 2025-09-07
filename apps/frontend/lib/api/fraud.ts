@@ -2,11 +2,20 @@ import { apiClient } from './client';
 import { Alert, AlertQuery, TriageResult, RiskSignals } from '../types/fraud';
 
 export const fraudApi = {
-  async runTriage(customerId: string, transactionId?: string) {
+  async runTriage(customerId: string, transactionId?: string, alertId?: string, forceRerun?: boolean) {
     return apiClient.post<TriageResult>('/fraud/triage', {
       customerId,
       transactionId,
+      alertId,
+      forceRerun,
     });
+  },
+
+  async getAlertTraces(alertId: string) {
+    return apiClient.get<{
+      traces: any[];
+      sessionId?: string;
+    }>(`/fraud/alerts/${alertId}/traces`);
   },
 
   async getAlerts(query?: AlertQuery) {

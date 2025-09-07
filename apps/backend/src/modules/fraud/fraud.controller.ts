@@ -51,6 +51,13 @@ export class FraudController {
     return this.fraudService.getAlert(id);
   }
 
+  @Get('alerts/:id/traces')
+  @ApiOperation({ summary: 'Get agent traces for an alert' })
+  @ApiResponse({ status: 200, description: 'Traces retrieved' })
+  async getAlertTraces(@Param('id') id: string) {
+    return this.fraudService.getAlertTraces(id);
+  }
+
   @Put('alerts/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update alert status' })

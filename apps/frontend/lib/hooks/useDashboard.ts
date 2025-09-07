@@ -35,6 +35,8 @@ export function useDashboardMetrics(dateRange?: { startDate?: string; endDate?: 
       );
       return response;
     },
-    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 6000, // Refetch every 6 seconds for live updates
+    refetchIntervalInBackground: true, // Continue refetching when tab is not active
+    staleTime: 0, // Always consider data stale to ensure fresh updates
   });
 }

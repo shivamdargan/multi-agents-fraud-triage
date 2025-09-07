@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FraudTriageTable } from "@/components/fraud-triage-table";
 import { KPICard } from "@/components/kpi-card";
 import { useTransactionStats, useAnomalyDetection } from "@/lib/hooks/useTransactions";
 import { useFraudQueue } from "@/lib/hooks/useFraud";
 import { useDashboardMetrics } from "@/lib/hooks/useDashboard";
-import { DollarSign, AlertTriangle, FileText, Clock, RefreshCw, Search, Filter, X } from "lucide-react";
+import { DollarSign, AlertTriangle, FileText, Clock, RefreshCw, Search, Filter, X, Download, Copy, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 
 export default function DashboardPage() {
@@ -19,6 +20,8 @@ export default function DashboardPage() {
   const [merchantFilter, setMerchantFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [riskFilter, setRiskFilter] = useState("all");
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Memoize dates to prevent recalculation on every render
   const queryDates = useMemo(() => ({
@@ -29,7 +32,7 @@ export default function DashboardPage() {
   // Use dashboard metrics for better data
   const { data: metrics, isLoading: metricsLoading, error: metricsError } = useDashboardMetrics(queryDates);
   const { data: stats, isLoading: statsLoading, error: statsError } = useTransactionStats(queryDates);
-  const { data: fraudQueue, isLoading: fraudLoading, error: fraudError } = useFraudQueue();
+  const { data: fraudQueue, isLoading: fraudLoading, error: fraudError, isFetching: fraudFetching } = useFraudQueue();
   
   const totalSpend = Math.abs(parseFloat(stats?.summary?.total) || 0);
   
@@ -57,6 +60,52 @@ export default function DashboardPage() {
   const disputesOpened = metrics?.totalDisputes || fraudQueue?.stats?.ESCALATED || 0;
   const openDisputes = metrics?.openDisputes || 0;
   const avgResponseTime = metrics?.avgResponseTime || 0;
+
+  // Handle export functionality
+  const handleExport = () => {
+    setShowExportDialog(true);
+  };
+
+  const handleCopyJson = async () => {
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      dateRange,
+      filters: {
+        merchant: merchantFilter,
+        category: categoryFilter,
+        risk: riskFilter,
+      },
+      alerts: alerts.map(alert => ({
+        id: alert.id,
+        customerId: alert.customerId,
+        customerName: alert.customer?.name || 'Unknown',
+        type: alert.type,
+        severity: alert.severity,
+        status: alert.status,
+        riskScore: alert.riskScore,
+        reasons: alert.reasons,
+        createdAt: alert.createdAt,
+        metadata: alert.metadata,
+      })),
+      summary: {
+        totalAlerts: alerts.length,
+        highRiskAlerts,
+        totalAlerts,
+        activeAlerts,
+        disputesOpened,
+        openDisputes,
+        avgResponseTime,
+      },
+    };
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(exportData, null, 2));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
+  };
 
   if (statsError || fraudError) {
     return (
@@ -94,7 +143,10 @@ export default function DashboardPage() {
               <SelectItem value="90d">90 Days</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">Export</Button>
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
       </div>
 
@@ -176,13 +228,28 @@ export default function DashboardPage() {
         <CardHeader>
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <CardTitle>Live Fraud Triage</CardTitle>
-              {isLoading && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  Loading...
+              <div className="flex items-center gap-3">
+                <CardTitle>Live Fraud Triage</CardTitle>
+                <div className="flex items-center gap-2">
+                  {isLoading ? (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <RefreshCw className="h-3 w-3 animate-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-xs text-green-600">
+                      <div className="relative">
+                        <div className="h-2 w-2 bg-green-500 rounded-full animate-ping"></div>
+                        <div className="absolute inset-0 h-2 w-2 bg-green-500 rounded-full"></div>
+                      </div>
+                      <span>Live</span>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Updates every 5s
+              </div>
             </div>
             
             {/* Filters integrated into header */}
@@ -265,6 +332,115 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Export Dialog */}
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5" />
+              Export Alert Data
+            </DialogTitle>
+            <DialogDescription>
+              Preview and copy the JSON data for {alerts.length} alerts from the fraud triage table
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 min-h-0 space-y-4">
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between bg-muted/20 p-4 rounded-lg border">
+              <div className="text-sm text-muted-foreground">
+                Ready to export {alerts.length} alerts • {JSON.stringify({
+                  timestamp: new Date().toISOString(),
+                  dateRange,
+                  filters: {
+                    merchant: merchantFilter || null,
+                    category: categoryFilter !== 'all' ? categoryFilter : null,
+                    risk: riskFilter !== 'all' ? riskFilter : null,
+                  },
+                  alerts: alerts.map(alert => ({
+                    id: alert.id,
+                    customerId: alert.customerId,
+                    customerName: alert.customer?.name || 'Unknown',
+                    type: alert.type,
+                    severity: alert.severity,
+                    status: alert.status,
+                    riskScore: alert.riskScore,
+                    reasons: alert.reasons,
+                    createdAt: alert.createdAt,
+                    metadata: alert.metadata,
+                  })),
+                  summary: {
+                    totalAlerts: alerts.length,
+                    highRiskAlerts,
+                    totalAlerts,
+                    activeAlerts,
+                    disputesOpened,
+                    openDisputes,
+                    avgResponseTime,
+                  },
+                }, null, 2).length} characters
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowExportDialog(false)}>
+                  Close
+                </Button>
+                <Button onClick={handleCopyJson} className="gap-2">
+                  {copied ? (
+                    <>
+                      <CheckCircle className="h-4 w-4" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" />
+                      Copy JSON
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* JSON Preview */}
+            <div className="flex-1 min-h-0">
+              <div className="h-full border-2 rounded-lg p-6 bg-slate-50 dark:bg-slate-950 overflow-auto">
+                <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed">
+                  {JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    dateRange,
+                    filters: {
+                      merchant: merchantFilter || null,
+                      category: categoryFilter !== 'all' ? categoryFilter : null,
+                      risk: riskFilter !== 'all' ? riskFilter : null,
+                    },
+                    alerts: alerts.map(alert => ({
+                      id: alert.id,
+                      customerId: alert.customerId,
+                      customerName: alert.customer?.name || 'Unknown',
+                      type: alert.type,
+                      severity: alert.severity,
+                      status: alert.status,
+                      riskScore: alert.riskScore,
+                      reasons: alert.reasons,
+                      createdAt: alert.createdAt,
+                      metadata: alert.metadata,
+                    })),
+                    summary: {
+                      totalAlerts: alerts.length,
+                      highRiskAlerts,
+                      totalAlerts,
+                      activeAlerts,
+                      disputesOpened,
+                      openDisputes,
+                      avgResponseTime,
+                    },
+                  }, null, 2)}
+                </pre>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

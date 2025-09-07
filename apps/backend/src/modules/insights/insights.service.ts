@@ -9,6 +9,8 @@ import * as path from 'path';
 
 @Injectable()
 export class InsightsService {
+  private recentReportRequests = new Map<string, number>();
+
   constructor(
     private prisma: PrismaService,
     private logger: LoggerService,
@@ -112,6 +114,31 @@ export class InsightsService {
   }
 
   async generateReport(customerId: string, type: string) {
+    // Check for duplicate request within 2 seconds
+    const requestKey = `${customerId}-${type}`;
+    const lastRequestTime = this.recentReportRequests.get(requestKey);
+    const now = Date.now();
+    
+    if (lastRequestTime && (now - lastRequestTime) < 2000) {
+      this.logger.warn(`Duplicate report request blocked for ${requestKey}`);
+      // Return a mock response instead of generating duplicate
+      return {
+        id: 'duplicate-blocked',
+        customerId,
+        type,
+        status: 'DUPLICATE_BLOCKED',
+        message: 'Duplicate request blocked',
+        generatedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+    }
+    
+    this.recentReportRequests.set(requestKey, now);
+    // Clean up old entries after 5 seconds
+    setTimeout(() => {
+      this.recentReportRequests.delete(requestKey);
+    }, 5000);
+
     const reportId = uuidv4();
     const startTime = Date.now();
 

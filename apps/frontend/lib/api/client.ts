@@ -51,7 +51,10 @@ class ApiClient {
         pendingRequests.set(requestKey, true);
         
         // Clean up after request completes
-        config.metadata = { requestKey };
+        if (!config.metadata) {
+          config.metadata = {};
+        }
+        config.metadata.requestKey = requestKey;
         
         return config;
       },

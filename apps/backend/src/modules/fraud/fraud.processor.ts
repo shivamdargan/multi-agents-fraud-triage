@@ -16,7 +16,8 @@ export class FraudProcessor {
 
   @Process('triage')
   async handleTriage(job: Job) {
-    const { sessionId, customerId, transactionId } = job.data;
+    const { sessionId, customerId, transactionId, alertId } = job.data;
+    const startTime = Date.now();
     
     try {
       this.fraudService.emitProgress(sessionId, {
@@ -25,6 +26,7 @@ export class FraudProcessor {
         step: 1,
       });
 
+      const stepStartTime = Date.now();
       const customer = await this.prisma.customer.findUnique({
         where: { id: customerId },
         include: {
@@ -35,6 +37,12 @@ export class FraudProcessor {
           },
         },
       });
+      
+      await this.saveTrace(sessionId, 'FraudAgent', 'fetch_profile', 
+        { customerId, step: 1 }, 
+        { message: 'Fetching customer profile', customer: customer?.id },
+        Date.now() - stepStartTime
+      );
 
       this.fraudService.emitProgress(sessionId, {
         type: 'progress',
@@ -42,7 +50,14 @@ export class FraudProcessor {
         step: 2,
       });
 
+      const step2StartTime = Date.now();
       const riskSignals = await this.fraudService.getRiskSignals(customerId);
+      
+      await this.saveTrace(sessionId, 'FraudAgent', 'analyze_patterns',
+        { customerId, step: 2 },
+        { message: 'Analyzing transaction patterns', riskScore: riskSignals.overallRisk },
+        Date.now() - step2StartTime
+      );
 
       this.fraudService.emitProgress(sessionId, {
         type: 'progress',
@@ -50,7 +65,14 @@ export class FraudProcessor {
         step: 3,
       });
 
+      const step3StartTime = Date.now();
       const decision = this.makeDecision(riskSignals.overallRisk);
+      
+      await this.saveTrace(sessionId, 'FraudAgent', 'evaluate_risk',
+        { customerId, step: 3, riskScore: riskSignals.overallRisk },
+        { message: 'Evaluating risk factors', decision },
+        Date.now() - step3StartTime
+      );
 
       this.fraudService.emitProgress(sessionId, {
         type: 'progress',
@@ -58,6 +80,7 @@ export class FraudProcessor {
         step: 4,
       });
 
+      const step4StartTime = Date.now();
       const result = {
         customerId,
         transactionId,
@@ -68,11 +91,24 @@ export class FraudProcessor {
         timestamp: new Date().toISOString(),
       };
 
-      if (riskSignals.overallRisk > 0.5) {
+      await this.saveTrace(sessionId, 'FraudAgent', 'generate_recommendations',
+        { customerId, step: 4 },
+        { message: 'Generating recommendations', recommendations: result.recommendations },
+        Date.now() - step4StartTime
+      );
+
+      // Only create a new alert if we're not triaging an existing alert
+      // AND the risk is high enough
+      if (!alertId && riskSignals.overallRisk > 0.5) {
         await this.createAlert(customerId, riskSignals.overallRisk, result);
       }
 
-      await this.saveTrace(sessionId, 'FraudAgent', 'triage', job.data, result);
+      const duration = Date.now() - startTime;
+      await this.saveTrace(sessionId, 'FraudAgent', 'complete', 
+        job.data, 
+        { ...result, message: 'Triage completed' }, 
+        duration
+      );
 
       return result;
     } catch (error) {
@@ -118,7 +154,7 @@ export class FraudProcessor {
     return 'LOW';
   }
 
-  private async saveTrace(sessionId: string, agentName: string, action: string, input: any, output: any) {
+  private async saveTrace(sessionId: string, agentName: string, action: string, input: any, output: any, duration?: number) {
     await this.prisma.agentTrace.create({
       data: {
         sessionId,
@@ -126,7 +162,7 @@ export class FraudProcessor {
         action,
         input,
         output,
-        duration: Date.now(),
+        duration: duration || null,
       },
     });
   }

@@ -31,13 +31,14 @@ const evalsApi = {
 
 export default function EvalsPage() {
   const [selectedRun, setSelectedRun] = useState<any>(null);
+  const [selectedTestMethod, setSelectedTestMethod] = useState("standard");
 
   const { data: runs, refetch: refetchRuns } = useQuery({
     queryKey: ["eval-runs"],
     queryFn: evalsApi.getEvalRuns,
   });
 
-  const { data: metrics } = useQuery({
+  const { data: metrics, refetch: refetchMetrics } = useQuery({
     queryKey: ["eval-metrics"],
     queryFn: evalsApi.getMetrics,
   });
@@ -47,11 +48,20 @@ export default function EvalsPage() {
     onSuccess: () => {
       toast.success("Evaluation started");
       refetchRuns();
+      setTimeout(() => refetchMetrics(), 2000); // Refresh metrics after evaluation
     },
     onError: () => {
       toast.error("Failed to start evaluation");
     },
   });
+
+  const testMethods = [
+    { id: "standard", name: "Standard Evaluation", description: "Basic risk detection tests" },
+    { id: "card-security", name: "Card Security Tests", description: "Lost/stolen card scenarios" },
+    { id: "dispute-handling", name: "Dispute Management", description: "Unauthorized charge detection" },
+    { id: "velocity-checks", name: "Velocity Analysis", description: "Transaction pattern analysis" },
+    { id: "device-security", name: "Device Security", description: "Device change detection" },
+  ];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -80,22 +90,39 @@ export default function EvalsPage() {
             Model and agent performance evaluation
           </p>
         </div>
-        <Button
-          onClick={() => runEvalMutation.mutate("Standard Evaluation")}
-          disabled={runEvalMutation.isPending}
-        >
-          {runEvalMutation.isPending ? (
-            <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Running...
-            </>
-          ) : (
-            <>
-              <PlayCircle className="h-4 w-4 mr-2" />
-              Run Evaluation
-            </>
-          )}
-        </Button>
+        <div className="flex items-center gap-3">
+          <select
+            value={selectedTestMethod}
+            onChange={(e) => setSelectedTestMethod(e.target.value)}
+            className="px-3 py-2 border rounded-md bg-background"
+            disabled={runEvalMutation.isPending}
+          >
+            {testMethods.map((method) => (
+              <option key={method.id} value={method.id}>
+                {method.name}
+              </option>
+            ))}
+          </select>
+          <Button
+            onClick={() => {
+              const method = testMethods.find(m => m.id === selectedTestMethod);
+              runEvalMutation.mutate(method?.name || "Standard Evaluation");
+            }}
+            disabled={runEvalMutation.isPending}
+          >
+            {runEvalMutation.isPending ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Running...
+              </>
+            ) : (
+              <>
+                <PlayCircle className="h-4 w-4 mr-2" />
+                Run Evaluation
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -148,14 +175,43 @@ export default function EvalsPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Test Method Information</CardTitle>
+            <CardDescription>
+              {testMethods.find(m => m.id === selectedTestMethod)?.description}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">Available Test Scenarios:</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Card Lost/Stolen - Freeze workflows</li>
+                <li>• Unauthorized charges - Dispute creation</li>
+                <li>• Device change detection</li>
+                <li>• Velocity pattern analysis</li>
+                <li>• Geographic anomaly detection</li>
+                <li>• PII redaction compliance</li>
+                <li>• Risk service timeout handling</li>
+                <li>• Rate limiting behavior</li>
+              </ul>
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground">
+                  Test cases are loaded from <code>/fixtures/evals/</code> directory
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Recent Evaluation Runs</CardTitle>
             <CardDescription>Click on a run to view details</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-64 overflow-y-auto">
               {runs?.map((run: any) => (
                 <div
                   key={run.id}
@@ -169,6 +225,11 @@ export default function EvalsPage() {
                       <p className="text-xs text-muted-foreground">
                         {format(new Date(run.startedAt), "MMM d, HH:mm")}
                       </p>
+                      {run.metrics && (
+                        <p className="text-xs text-green-600">
+                          {run.metrics.passed}/{run.metrics.total} passed
+                        </p>
+                      )}
                     </div>
                   </div>
                   <Badge className={getStatusColor(run.status)}>
@@ -200,32 +261,40 @@ export default function EvalsPage() {
                     <p className="text-2xl font-bold text-green-600">
                       {selectedRun.metrics.passed || 0}
                     </p>
-                    <p className="text-sm text-muted-foreground">True Positives</p>
+                    <p className="text-sm text-muted-foreground">Passed Tests</p>
                   </div>
                   <div className="text-center p-4 bg-red-50 rounded">
                     <p className="text-2xl font-bold text-red-600">
                       {selectedRun.metrics.failed || 0}
                     </p>
-                    <p className="text-sm text-muted-foreground">False Positives</p>
+                    <p className="text-sm text-muted-foreground">Failed Tests</p>
                   </div>
                 </div>
                 
-                <div>
-                  <h4 className="font-medium mb-2">Common Failure Modes</h4>
-                  <ul className="space-y-1">
-                    <li className="text-sm flex items-start gap-2">
-                      <span className="text-red-500">•</span>
-                      <span>High amount transactions misclassified</span>
-                    </li>
-                    <li className="text-sm flex items-start gap-2">
-                      <span className="text-red-500">•</span>
-                      <span>Device change signals not properly weighted</span>
-                    </li>
-                    <li className="text-sm flex items-start gap-2">
-                      <span className="text-red-500">•</span>
-                      <span>Time-based patterns need adjustment</span>
-                    </li>
-                  </ul>
+                <div className="space-y-3">
+                  <h4 className="font-medium">Test Results Details</h4>
+                  <div className="max-h-32 overflow-y-auto space-y-2">
+                    {selectedRun.results?.map((result: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between p-2 bg-muted/50 rounded text-xs">
+                        <div className="flex items-center gap-2">
+                          {result.passed ? 
+                            <CheckCircle className="h-3 w-3 text-green-500" /> : 
+                            <XCircle className="h-3 w-3 text-red-500" />
+                          }
+                          <span className="font-medium">{result.name}</span>
+                        </div>
+                        <Badge variant={result.passed ? "default" : "destructive"} className="text-xs">
+                          {result.passed ? "PASS" : "FAIL"}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="pt-2 border-t text-xs text-muted-foreground">
+                    Accuracy: {((selectedRun.metrics.accuracy || 0) * 100).toFixed(1)}% | 
+                    Precision: {((selectedRun.metrics.precision || 0) * 100).toFixed(1)}% | 
+                    Recall: {((selectedRun.metrics.recall || 0) * 100).toFixed(1)}%
+                  </div>
                 </div>
               </div>
             ) : (

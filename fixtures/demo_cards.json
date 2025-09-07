@@ -1,0 +1,162 @@
+[
+  {
+    "id": "card_001",
+    "customerId": "cust_001",
+    "last4": "4242",
+    "status": "ACTIVE",
+    "network": "VISA",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_002", 
+    "customerId": "cust_002",
+    "last4": "8888",
+    "status": "ACTIVE",
+    "network": "MASTERCARD",
+    "cardType": "DEBIT"
+  },
+  {
+    "id": "card_003",
+    "customerId": "cust_003",
+    "last4": "1234",
+    "status": "ACTIVE", 
+    "network": "VISA",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_004",
+    "customerId": "cust_004",
+    "last4": "9999",
+    "status": "FROZEN",
+    "network": "AMEX",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_005",
+    "customerId": "cust_005",
+    "last4": "5555",
+    "status": "ACTIVE",
+    "network": "MASTERCARD",
+    "cardType": "DEBIT"
+  },
+  {
+    "id": "card_006",
+    "customerId": "cust_006",
+    "last4": "7777",
+    "status": "ACTIVE",
+    "network": "VISA",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_007",
+    "customerId": "cust_007",
+    "last4": "3333",
+    "status": "ACTIVE",
+    "network": "VISA",
+    "cardType": "DEBIT"
+  },
+  {
+    "id": "card_008",
+    "customerId": "cust_008",
+    "last4": "6666",
+    "status": "ACTIVE",
+    "network": "MASTERCARD",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_009",
+    "customerId": "cust_009",
+    "last4": "2222",
+    "status": "FROZEN",
+    "network": "VISA",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_010",
+    "customerId": "cust_010",
+    "last4": "1111",
+    "status": "ACTIVE",
+    "network": "MASTERCARD",
+    "cardType": "DEBIT"
+  },
+  {
+    "id": "card_011",
+    "customerId": "cust_011",
+    "last4": "4444",
+    "status": "ACTIVE",
+    "network": "VISA",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_012",
+    "customerId": "cust_012",
+    "last4": "8888",
+    "status": "ACTIVE",
+    "network": "AMEX",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_013",
+    "customerId": "cust_013",
+    "last4": "0000",
+    "status": "ACTIVE",
+    "network": "VISA",
+    "cardType": "DEBIT"
+  },
+  {
+    "id": "card_014",
+    "customerId": "cust_014",
+    "last4": "5678",
+    "status": "ACTIVE",
+    "network": "MASTERCARD",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_015",
+    "customerId": "cust_015",
+    "last4": "9876",
+    "status": "ACTIVE",
+    "network": "VISA",
+    "cardType": "DEBIT"
+  },
+  {
+    "id": "card_016",
+    "customerId": "cust_016",
+    "last4": "1357",
+    "status": "FROZEN",
+    "network": "MASTERCARD",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_017",
+    "customerId": "cust_017",
+    "last4": "2468",
+    "status": "ACTIVE",
+    "network": "VISA",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_018",
+    "customerId": "cust_018",
+    "last4": "1122",
+    "status": "ACTIVE",
+    "network": "AMEX",
+    "cardType": "CREDIT"
+  },
+  {
+    "id": "card_019",
+    "customerId": "cust_019",
+    "last4": "3344",
+    "status": "ACTIVE",
+    "network": "MASTERCARD",
+    "cardType": "DEBIT"
+  },
+  {
+    "id": "card_020",
+    "customerId": "cust_020",
+    "last4": "5566",
+    "status": "ACTIVE",
+    "network": "VISA",
+    "cardType": "CREDIT"
+  }
+]

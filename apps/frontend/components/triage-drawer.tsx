@@ -7,10 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAlert, useTriage, useTriageStream, useFreezeCard, useUnfreezeCard, useCreateDispute, useUpdateAlert, useCard, useDisputeByTransaction } from "@/lib/hooks/useFraud";
+import { useAlert, useTriage, useTriageStream, useFreezeCard, useUnfreezeCard, useCreateDispute, useUpdateAlert, useCard, useDisputeByTransaction, useAlertTraces } from "@/lib/hooks/useFraud";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { 
@@ -43,9 +42,19 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
   const [pendingCardId, setPendingCardId] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<'freeze' | 'unfreeze' | null>(null);
   const [cardStatus, setCardStatus] = useState<'ACTIVE' | 'FROZEN' | 'CANCELLED' | null>(null);
+  const [triageResult, setTriageResult] = useState<any>(null);
   const previousOpen = useRef(open);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const { data: alert } = useAlert(alertId || "");
+  
+  // Load triage result from alert if available
+  useEffect(() => {
+    if (alert?.triageData?.result) {
+      console.log('Found triage data in alert:', alert.triageData.result);
+      setTriageResult(alert.triageData.result);
+    }
+  }, [alert]);
   const cardId = alert?.metadata?.cardId || "";
   const transactionId = alert?.metadata?.transactionId || "";
   const { data: card } = useCard(cardId);
@@ -55,7 +64,19 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
   const unfreezeCardMutation = useUnfreezeCard();
   const createDisputeMutation = useCreateDispute();
   const updateAlertMutation = useUpdateAlert();
+  const { data: alertTracesData } = useAlertTraces(alertId || "");
   const { progress: triageProgress, isComplete } = useTriageStream(triageSessionId);
+  
+  // Update triage result when streaming completes
+  useEffect(() => {
+    if (triageProgress.length > 0) {
+      const completeStep = triageProgress.find((step: any) => step.type === 'complete');
+      if (completeStep && completeStep.result) {
+        setTriageResult(completeStep.result);
+      }
+    }
+  }, [triageProgress]);
+
 
   useEffect(() => {
     if (open && !previousOpen.current) {
@@ -78,15 +99,40 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, onOpenChange]);
 
-  const handleRunTriage = async () => {
+  const handleRunTriage = async (forceRerun = false) => {
     if (!alert || rateLimited) return;
 
+    if (forceRerun) {
+      // For re-run: clear everything and reset session
+      setTriageResult(null);
+      setTriageSessionId(null);
+      toast.info("Re-running triage analysis...");
+    }
+    
     try {
       const result = await triageMutation.mutateAsync({
         customerId: alert.customerId,
         transactionId: undefined,
+        alertId: alertId || undefined,
+        forceRerun: forceRerun,
       });
+      
+      if (result.alreadyRun && result.result && !forceRerun) {
+        // Triage was already run, show the existing results (don't create placeholder traces)
+        setTriageResult(result.result);
+        toast.info("Showing previous triage analysis");
+        return;
+      }
+      
+      // Set session ID for streaming
       setTriageSessionId(result.sessionId);
+      
+      // Handle immediate result if available
+      if (result.result) {
+        console.log('Setting triage result:', result.result);
+        setTriageResult(result.result);
+      }
+      
     } catch (error: any) {
       if (error.statusCode === 429) {
         setRateLimited(true);
@@ -101,6 +147,24 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
       setCardStatus(card.status);
     }
   }, [card]);
+
+  // Load triage result from existing traces when drawer opens
+  useEffect(() => {
+    if (alertTracesData?.traces && alertTracesData.traces.length > 0 && !triageSessionId) {
+      // Find the complete trace which has the full result
+      const completeTrace = alertTracesData.traces.find((t: any) => t.action === 'complete');
+      if (completeTrace?.output) {
+        console.log('Found complete trace with output:', completeTrace.output);
+        setTriageResult(completeTrace.output);
+      }
+      
+      // Set the sessionId if it exists to prevent re-running
+      if (alertTracesData.sessionId) {
+        setTriageSessionId(alertTracesData.sessionId);
+      }
+    }
+  }, [alertTracesData, triageSessionId]);
+
 
   const handleFreezeCard = async () => {
     if (rateLimited || !cardId) return;
@@ -299,7 +363,7 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
 
           <Tabs defaultValue="trace" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="trace">Agent Trace</TabsTrigger>
+              <TabsTrigger value="trace">Analysis</TabsTrigger>
               <TabsTrigger value="details">Alert Details</TabsTrigger>
               <TabsTrigger value="actions">Actions</TabsTrigger>
             </TabsList>
@@ -308,34 +372,157 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm">Execution Trace</CardTitle>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleRunTriage}
-                      disabled={triageMutation.isPending || rateLimited}
-                    >
-                      {triageMutation.isPending ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Running...
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Run Triage
-                        </>
+                    <CardTitle className="text-sm">Risk Analysis</CardTitle>
+                    <div className="flex items-center gap-2">
+                      {triageResult && !triageMutation.isPending && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRunTriage(true)}
+                          disabled={rateLimited}
+                          className="text-xs"
+                        >
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Re-run
+                        </Button>
                       )}
-                    </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRunTriage(false)}
+                        disabled={triageMutation.isPending || rateLimited || (triageResult && !triageMutation.isPending)}
+                      >
+                        {triageMutation.isPending ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Running...
+                          </>
+                        ) : triageResult ? (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Already Analyzed
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Run Triage
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-[300px]">
-                    {triageProgress.length > 0 ? (
-                      <div className="space-y-2">
-                        {triageProgress.map((step, idx) => (
-                          <TraceStep key={idx} step={step} />
-                        ))}
+                  {/* Show triage decision and recommendations if available */}
+                  {triageResult ? (
+                    <div className="mb-4 space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-5 w-5 text-primary" />
+                          <span className="font-medium">Triage Analysis</span>
+                        </div>
+                        <Badge 
+                          className={cn(
+                            "font-bold text-sm px-3",
+                            triageResult.decision === 'BLOCK' && "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400",
+                            triageResult.decision === 'REVIEW' && "bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-400",
+                            triageResult.decision === 'MONITOR' && "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400",
+                            triageResult.decision === 'APPROVE' && "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400"
+                          )}
+                        >
+                          {triageResult.decision || 'PENDING'}
+                        </Badge>
+                      </div>
+                      
+                      
+                      {triageResult.recommendations && triageResult.recommendations.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium px-3">AI Recommendations</h4>
+                          <div className="space-y-1">
+                            {triageResult.recommendations.map((rec: string, idx: number) => (
+                              <div key={idx} className="flex items-start gap-2 p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg text-sm">
+                                <span className="leading-relaxed">{rec}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="border-b" />
+                    </div>
+                  ) : null}
+                  
+                  <div className="space-y-4">
+                    {triageMutation.isPending ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                        <span className="text-sm">Running analysis...</span>
+                      </div>
+                    ) : triageResult ? (
+                      <div className="space-y-4">
+                        {/* Risk Signals */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {/* Device Risk */}
+                          <Card className="p-5">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-muted-foreground">Device Risk</span>
+                              <Badge variant={triageResult.signals?.devices?.score > 0.7 ? "destructive" : triageResult.signals?.devices?.score > 0.4 ? "secondary" : "default"}>
+                                {((triageResult.signals?.devices?.score || 0) * 100).toFixed(0)}%
+                              </Badge>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {triageResult.signals?.devices?.totalDevices || 0} devices, {triageResult.signals?.devices?.untrustedDevices || 0} untrusted
+                            </div>
+                          </Card>
+
+                          {/* History Risk */}
+                          <Card className="p-5">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-muted-foreground">History Risk</span>
+                              <Badge variant={triageResult.signals?.history?.score > 0.7 ? "destructive" : triageResult.signals?.history?.score > 0.4 ? "secondary" : "default"}>
+                                {((triageResult.signals?.history?.score || 0) * 100).toFixed(0)}%
+                              </Badge>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {triageResult.signals?.history?.alertCount || 0} alerts, {triageResult.signals?.history?.chargebackCount || 0} chargebacks
+                            </div>
+                          </Card>
+
+                          {/* Velocity Risk */}
+                          <Card className="p-5">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-muted-foreground">Velocity Risk</span>
+                              <Badge variant={triageResult.signals?.velocity?.score > 0.7 ? "destructive" : triageResult.signals?.velocity?.score > 0.4 ? "secondary" : "default"}>
+                                {((triageResult.signals?.velocity?.score || 0) * 100).toFixed(0)}%
+                              </Badge>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              ${Math.abs(triageResult.signals?.velocity?.totalAmount || 0)} in {triageResult.signals?.velocity?.transactionCount || 0} txns
+                            </div>
+                          </Card>
+                        </div>
+
+                        {/* Overall Risk Score */}
+                        <Card className="p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="font-medium">Overall Risk Assessment</span>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold">{(triageResult.riskScore * 100).toFixed(1)}%</div>
+                              <div className="text-xs text-muted-foreground">Risk Score</div>
+                            </div>
+                          </div>
+                          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className={cn(
+                                "h-full transition-all",
+                                triageResult.riskScore > 0.7 ? "bg-red-500" :
+                                triageResult.riskScore > 0.4 ? "bg-yellow-500" :
+                                "bg-green-500"
+                              )}
+                              style={{ width: `${triageResult.riskScore * 100}%` }}
+                            />
+                          </div>
+                        </Card>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -345,7 +532,7 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
                         </p>
                       </div>
                     )}
-                  </ScrollArea>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -562,18 +749,25 @@ export function TriageDrawer({ alertId, open, onOpenChange, onActionComplete }: 
   );
 }
 
-function TraceStep({ step }: { step: any }) {
+function TraceStep({ step, isNew }: { step: any; isNew?: boolean }) {
   const getIcon = () => {
     switch (step.type) {
       case "complete": return <CheckCircle className="h-4 w-4 text-green-500" />;
       case "error": return <XCircle className="h-4 w-4 text-red-500" />;
-      case "progress": return <Clock className="h-4 w-4 text-blue-500" />;
+      case "progress": return <Clock className="h-4 w-4 text-blue-500 animate-pulse" />;
       default: return <Info className="h-4 w-4 text-gray-500" />;
     }
   };
 
   return (
-    <div className="flex items-start gap-3 p-2 rounded-lg bg-muted/50">
+    <div 
+      className={cn(
+        "flex items-start gap-3 p-3 rounded-lg transition-all duration-300",
+        isNew ? "bg-primary/10 animate-in slide-in-from-bottom-2 fade-in" : "bg-muted/50",
+        step.type === "error" && "bg-red-50 dark:bg-red-950/20",
+        step.type === "complete" && "bg-green-50 dark:bg-green-950/20"
+      )}
+    >
       {getIcon()}
       <div className="flex-1">
         <p className="text-sm font-medium">{step.message}</p>

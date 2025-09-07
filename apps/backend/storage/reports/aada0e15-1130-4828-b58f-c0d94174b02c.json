@@ -1,0 +1,71 @@
+{
+  "id": "aada0e15-1130-4828-b58f-c0d94174b02c",
+  "customerId": "cust_001",
+  "type": "MONTHLY_SPEND",
+  "status": "COMPLETED",
+  "content": {
+    "type": "MONTHLY_SPEND",
+    "generatedAt": "2025-09-07T23:12:12.562Z",
+    "insights": {
+      "customerId": "cust_001",
+      "period": "30d",
+      "summary": {
+        "totalSpend": 89.45,
+        "averageTransaction": 89.45,
+        "transactionCount": 1,
+        "uniqueMerchants": 1
+      },
+      "trends": {
+        "spendTrend": "stable",
+        "percentageChange": 0,
+        "comparisonPeriod": "2025-07-09 to 2025-08-08"
+      },
+      "categories": {
+        "categories": [
+          {
+            "mcc": "5411",
+            "category": "Grocery",
+            "total": 89.45,
+            "count": 1,
+            "percentage": 100
+          }
+        ]
+      },
+      "topMerchants": {
+        "merchants": [
+          {
+            "merchant": "Whole Foods Market",
+            "total": 89.45,
+            "count": 1,
+            "lastTransaction": "2025-09-06T07:09:18.437Z"
+          }
+        ]
+      },
+      "anomalies": []
+    },
+    "riskSignals": [],
+    "recentTransactions": [
+      {
+        "id": "txn_demo_001",
+        "customerId": "cust_001",
+        "cardId": "card_001",
+        "mcc": "5411",
+        "merchant": "Whole Foods Market",
+        "amount": "-89.45",
+        "currency": "USD",
+        "timestamp": "2025-09-06T07:09:18.437Z",
+        "deviceId": "dev_001",
+        "geo": {
+          "lat": 40.7128,
+          "lon": -74.006,
+          "country": "US"
+        },
+        "riskScore": 0,
+        "status": "APPROVED",
+        "createdAt": "2025-09-07T22:46:18.438Z"
+      }
+    ]
+  },
+  "generatedAt": "2025-09-07T23:12:12.562Z",
+  "expiresAt": "2025-09-14T23:12:12.562Z"
+}

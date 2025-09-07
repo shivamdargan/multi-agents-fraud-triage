@@ -1,62 +1,50 @@
-# Aegis Support - Multi-Agent Banking System
+# Aegis Support Documentation
 
-Internal tool for care agents to analyze transactions, generate AI reports, and triage suspected fraud with a multi-agent pipeline.
+## 📚 Table of Contents
 
-## Architecture
+- [Project Overview](./OVERVIEW.md) - System architecture and high-level design
+- [Backend Documentation](./BACKEND.md) - NestJS backend services and APIs
+- [Frontend Documentation](./FRONTEND.md) - Next.js frontend components and features
+- [Setup Guide](./SETUP.md) - Installation and configuration instructions
+- [Architecture Decision Record](./ADR.md) - Key architectural decisions and rationale
 
-- **Frontend**: Next.js with TypeScript, shadcn/ui components
-- **Backend**: NestJS with TypeScript
-- **Database**: PostgreSQL with Redis for caching
-- **Infrastructure**: Docker Compose for local development
-
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 # Install dependencies
 npm install
 
-# Start with Docker
-docker-compose up
-
-# Or run locally
+# Start development servers
 npm run dev
+
+# Or start services individually
+npm run dev:backend  # Backend on port 3001
+npm run dev:frontend # Frontend on port 3000
 ```
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 aegis-support/
 ├── apps/
-│   ├── frontend/          # Next.js application
-│   └── backend/           # NestJS application
-├── packages/
-│   ├── types/            # Shared TypeScript types
-│   ├── utils/            # Shared utilities
-│   └── agents/           # Multi-agent system
-├── fixtures/             # Test data and fixtures
-└── docker-compose.yml    # Docker configuration
+│   ├── backend/    # NestJS API server
+│   └── frontend/   # Next.js web application
+├── docs/           # Project documentation
+├── fixtures/       # Demo and test data
+└── packages/       # Shared packages (if any)
 ```
 
-## Features
+## 🔧 Key Technologies
 
-- Transaction analysis and insights
-- Fraud detection and triage
-- Multi-agent workflow with guardrails
-- Real-time metrics and observability
-- Comprehensive evaluation framework
+- **Backend**: NestJS, Prisma, PostgreSQL, Redis, Bull Queue
+- **Frontend**: Next.js 15, React 19, TailwindCSS, React Query
+- **Infrastructure**: Docker, Docker Compose
+- **Development**: TypeScript, Turbo
 
-## Development
+## 📖 Documentation Index
 
-```bash
-# Run development servers
-npm run dev
-
-# Run tests
-npm run test
-
-# Lint code
-npm run lint
-
-# Build for production
-npm run build
-```
+1. **[System Overview](./OVERVIEW.md)**: Architecture diagrams and system design
+2. **[Backend Guide](./BACKEND.md)**: API documentation, services, and patterns
+3. **[Frontend Guide](./FRONTEND.md)**: Components, hooks, and UI patterns
+4. **[Setup Instructions](./SETUP.md)**: Step-by-step installation guide
+5. **[Architecture Decisions](./ADR.md)**: Rationale behind key design choices

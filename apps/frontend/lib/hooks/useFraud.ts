@@ -33,7 +33,9 @@ export function useFraudQueue(status?: string) {
   return useQuery({
     queryKey: ['fraud-queue', status],
     queryFn: () => fraudApi.getFraudQueue(status),
-    // refetchInterval: 60000, // DISABLED - no automatic refetching
+    refetchInterval: 5000, // Refetch every 5 seconds for live updates
+    refetchIntervalInBackground: true, // Continue refetching when tab is not active
+    staleTime: 0, // Always consider data stale to ensure fresh updates
   });
 }
 
@@ -41,16 +43,26 @@ export function useTriage() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ customerId, transactionId }: { customerId: string; transactionId?: string }) => 
-      fraudApi.runTriage(customerId, transactionId),
+    mutationFn: ({ customerId, transactionId, alertId, forceRerun }: { customerId: string; transactionId?: string; alertId?: string; forceRerun?: boolean }) => 
+      fraudApi.runTriage(customerId, transactionId, alertId, forceRerun),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['alerts'] });
       queryClient.invalidateQueries({ queryKey: ['risk-signals'] });
-      toast.success('Triage completed successfully');
+      if (!data.alreadyRun) {
+        toast.success('Triage completed successfully');
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || 'Triage failed');
     },
+  });
+}
+
+export function useAlertTraces(alertId: string) {
+  return useQuery({
+    queryKey: ['alert-traces', alertId],
+    queryFn: () => fraudApi.getAlertTraces(alertId),
+    enabled: !!alertId,
   });
 }
 
@@ -59,7 +71,16 @@ export function useTriageStream(sessionId: string | null) {
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      // Reset state when sessionId is null
+      setProgress([]);
+      setIsComplete(false);
+      return;
+    }
+
+    // Reset state for new session
+    setProgress([]);
+    setIsComplete(false);
 
     const eventSource = fraudApi.streamTriage(sessionId);
     

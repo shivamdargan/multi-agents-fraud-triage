@@ -23,6 +23,34 @@ export class FraudService {
   ) {}
 
   async runTriage(dto: TriageRequestDto) {
+    // Check if alert already has been triaged (skip if force rerun)
+    if (dto.alertId && !dto.forceRerun) {
+      const alert = await this.prisma.alert.findUnique({
+        where: { id: dto.alertId },
+        select: { triageData: true }
+      });
+      
+      if (alert?.triageData && (alert.triageData as any).sessionId) {
+        // Return existing sessionId if triage was already run
+        const existingSessionId = (alert.triageData as any).sessionId;
+        
+        // Check if traces exist
+        const traces = await this.prisma.agentTrace.findMany({
+          where: { sessionId: existingSessionId },
+          orderBy: { timestamp: 'asc' }
+        });
+        
+        if (traces.length > 0) {
+          return { 
+            sessionId: existingSessionId, 
+            result: (alert.triageData as any).result,
+            alreadyRun: true,
+            duration: 0
+          };
+        }
+      }
+    }
+    
     const sessionId = uuidv4();
     const startTime = Date.now();
 
@@ -31,6 +59,7 @@ export class FraudService {
 
     const job = await this.fraudQueue.add('triage', {
       sessionId,
+      alertId: dto.alertId,
       ...dto,
     });
 
@@ -42,6 +71,20 @@ export class FraudService {
 
     const result = await job.finished();
 
+    // Store sessionId in alert's triageData
+    if (dto.alertId) {
+      await this.prisma.alert.update({
+        where: { id: dto.alertId },
+        data: {
+          triageData: {
+            sessionId,
+            result,
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    }
+
     this.emitProgress(sessionId, {
       type: 'complete',
       message: 'Triage completed',
@@ -52,7 +95,7 @@ export class FraudService {
     setTimeout(() => {
       stream.complete();
       this.triageStreams.delete(sessionId);
-    }, 5000);
+    }, 1000); // Reduced timeout to 1 second
 
     this.metrics.recordLatency('fraud.triage', startTime);
     this.metrics.recordCounter('fraud.triage.completed');
@@ -147,6 +190,29 @@ export class FraudService {
     }
 
     return alert;
+  }
+
+  async getAlertTraces(alertId: string) {
+    const alert = await this.prisma.alert.findUnique({
+      where: { id: alertId },
+      select: { triageData: true }
+    });
+
+    if (!alert) {
+      throw new NotFoundException('Alert not found');
+    }
+
+    if (!alert.triageData || !(alert.triageData as any).sessionId) {
+      return { traces: [] };
+    }
+
+    const sessionId = (alert.triageData as any).sessionId;
+    const traces = await this.prisma.agentTrace.findMany({
+      where: { sessionId },
+      orderBy: { timestamp: 'asc' }
+    });
+
+    return { traces, sessionId };
   }
 
   async updateAlert(id: string, dto: UpdateAlertDto) {

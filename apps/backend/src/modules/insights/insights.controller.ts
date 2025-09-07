@@ -59,6 +59,7 @@ export class InsightsController {
   @ApiOperation({ summary: 'Generate a report' })
   @ApiResponse({ status: 201, description: 'Report generation started' })
   async generateReport(@Body() body: { customerId: string; type: string }) {
+    console.log('Report generation request received:', body);
     return this.insightsService.generateReport(body.customerId, body.type);
   }
 

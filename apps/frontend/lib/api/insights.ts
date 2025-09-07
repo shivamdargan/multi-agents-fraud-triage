@@ -3,8 +3,8 @@ import { SpendInsights, Report } from '../types/insights';
 
 export const insightsApi = {
   async getSpendInsights(customerId: string, period?: string) {
-    // Use the customers insights endpoint
-    return apiClient.get<any>(`/customers/${customerId}/insights`);
+    const params = period ? `?period=${period}` : '';
+    return apiClient.get<any>(`/insights/spend/${customerId}${params}`);
   },
 
   async getCategoryBreakdown(customerId: string) {
@@ -31,18 +31,31 @@ export const insightsApi = {
   },
 
   async generateReport(customerId: string, type: string) {
-    // Return a mock response for now since endpoint doesn't exist
-    return Promise.resolve({
-      id: 'mock-' + Date.now(),
-      type,
-      status: 'PENDING',
-      generatedAt: new Date().toISOString(),
+    return apiClient.post<{
+      id: string;
+      customerId: string;
+      type: string;
+      status: string;
+      content?: any;
+      generatedAt: string;
+      expiresAt: string;
+    }>('/insights/reports/generate', {
+      customerId,
+      type
     });
   },
 
   async getReports(customerId?: string) {
-    // Return empty array for now since endpoint doesn't exist
-    return Promise.resolve([]);
+    const params = customerId ? `?customerId=${customerId}` : '';
+    return apiClient.get<Array<{
+      id: string;
+      customerId: string;
+      type: string;
+      status: string;
+      content?: any;
+      generatedAt: string;
+      expiresAt: string;
+    }>>(`/insights/reports${params}`);
   },
 
   async getTimeSeriesData(customerId: string, metric: string, period: string) {

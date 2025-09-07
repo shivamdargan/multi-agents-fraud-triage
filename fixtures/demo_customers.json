@@ -1,0 +1,202 @@
+[
+  {
+    "id": "cust_001",
+    "name": "John Smith",
+    "emailMasked": "j***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": true
+    }
+  },
+  {
+    "id": "cust_002", 
+    "name": "Sarah Johnson",
+    "emailMasked": "s***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_003",
+    "name": "Michael Chen",
+    "emailMasked": "m***@example.com", 
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_004",
+    "name": "Emma Wilson",
+    "emailMasked": "e***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_005",
+    "name": "David Martinez",
+    "emailMasked": "d***@example.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_006",
+    "name": "Lisa Anderson",
+    "emailMasked": "l***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": true
+    }
+  },
+  {
+    "id": "cust_007",
+    "name": "Robert Taylor",
+    "emailMasked": "r***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_008",
+    "name": "Jessica Brown",
+    "emailMasked": "j***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_009",
+    "name": "Alex Thompson",
+    "emailMasked": "a***@example.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_010",
+    "name": "Maria Garcia",
+    "emailMasked": "m***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_011",
+    "name": "James Wilson",
+    "emailMasked": "j***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": true
+    }
+  },
+  {
+    "id": "cust_012",
+    "name": "Amanda Davis",
+    "emailMasked": "a***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_013",
+    "name": "Kevin Lee",
+    "emailMasked": "k***@example.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_014",
+    "name": "Rachel Green",
+    "emailMasked": "r***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_015",
+    "name": "Daniel Kim",
+    "emailMasked": "d***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_016",
+    "name": "Sophie Miller",
+    "emailMasked": "s***@example.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_017",
+    "name": "Ryan Cooper",
+    "emailMasked": "r***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": true,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_018",
+    "name": "Olivia White",
+    "emailMasked": "o***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": true
+    }
+  },
+  {
+    "id": "cust_019",
+    "name": "Chris Johnson",
+    "emailMasked": "c***@example.com",
+    "riskFlags": {
+      "highRiskCountry": false,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  },
+  {
+    "id": "cust_020",
+    "name": "Natalie Lopez",
+    "emailMasked": "n***@example.com",
+    "riskFlags": {
+      "highRiskCountry": true,
+      "previousFraud": false,
+      "vipCustomer": false
+    }
+  }
+]

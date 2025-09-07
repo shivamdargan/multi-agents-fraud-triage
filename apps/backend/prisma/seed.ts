@@ -27,9 +27,9 @@ async function main() {
   await prisma.customer.deleteMany();
   await prisma.knowledgeBase.deleteMany();
 
-  // Load and seed customers
+  // Load and seed customers (using demo data for better experience)
   console.log('📥 Loading customers...');
-  const customers = await loadFixture('customers.json');
+  const customers = await loadFixture('demo_customers.json');
   for (const customer of customers) {
     await prisma.customer.create({
       data: {
@@ -44,7 +44,7 @@ async function main() {
 
   // Load and seed cards
   console.log('📥 Loading cards...');
-  const cards = await loadFixture('cards.json');
+  const cards = await loadFixture('demo_cards.json');
   for (const card of cards) {
     await prisma.card.create({
       data: {
@@ -60,7 +60,7 @@ async function main() {
 
   // Load and seed devices
   console.log('📥 Loading devices...');
-  const devices = await loadFixture('devices.json');
+  const devices = await loadFixture('demo_devices.json');
   for (const device of devices) {
     await prisma.device.create({
       data: {
@@ -75,15 +75,28 @@ async function main() {
   }
   console.log(`✅ Seeded ${devices.length} devices`);
 
-  // Load and seed transactions
+  // Load and seed transactions (using demo data for better experience)
   console.log('📥 Loading transactions...');
-  const transactions = await loadFixture('transactions.json');
+  const transactions = await loadFixture('demo_transactions.json');
   
   // Get all devices with their deviceId to id mapping
   const allDevices = await prisma.device.findMany({
     select: { id: true, deviceId: true }
   });
   const deviceIdMap = new Map(allDevices.map(d => [d.deviceId, d.id]));
+  
+  // Get all cards to ensure we only reference valid cards
+  const allCards = await prisma.card.findMany({
+    select: { id: true, customerId: true }
+  });
+  const cardIdSet = new Set(allCards.map(c => c.id));
+  const customerCardMap = new Map();
+  allCards.forEach(card => {
+    if (!customerCardMap.has(card.customerId)) {
+      customerCardMap.set(card.customerId, []);
+    }
+    customerCardMap.get(card.customerId).push(card.id);
+  });
   
   for (const transaction of transactions) {
     // Map status values to valid enum values
@@ -100,6 +113,13 @@ async function main() {
 
     // Map the deviceId from fixture to the actual device.id in the database
     const deviceId = transaction.deviceId ? deviceIdMap.get(transaction.deviceId) || null : null;
+    
+    // Ensure cardId exists, fallback to customer's first card if not
+    let cardId = transaction.cardId;
+    if (!cardIdSet.has(cardId)) {
+      const customerCards = customerCardMap.get(transaction.customerId);
+      cardId = customerCards?.[0] || null;
+    }
 
     // Calculate risk score based on various factors
     let riskScore = transaction.riskScore || 0;
@@ -128,19 +148,19 @@ async function main() {
       riskScore = Math.min(riskScore, 1.0);
     }
 
-    // Make transactions more recent - within last 7 days
+    // Make transactions more recent - within last 2 days for demo freshness
     const originalDate = new Date(transaction.timestamp);
-    const daysAgo = Math.floor(Math.random() * 7); // Random day within last 7 days
-    const hoursAgo = Math.floor(Math.random() * 24); // Random hour
+    const hoursAgo = Math.floor(Math.random() * 48); // Random hour within last 2 days
+    const minutesAgo = Math.floor(Math.random() * 60); // Random minutes
     const recentDate = new Date();
-    recentDate.setDate(recentDate.getDate() - daysAgo);
     recentDate.setHours(recentDate.getHours() - hoursAgo);
+    recentDate.setMinutes(recentDate.getMinutes() - minutesAgo);
     
     await prisma.transaction.create({
       data: {
         id: transaction.id,
         customerId: transaction.customerId,
-        cardId: transaction.cardId,
+        cardId: cardId,
         mcc: transaction.mcc,
         merchant: transaction.merchant,
         amount: transaction.amount,
@@ -175,15 +195,15 @@ async function main() {
   }
   console.log(`✅ Seeded ${kbDocs.length} knowledge base documents`);
 
-  // Generate some alerts based on high-risk transactions
+  // Generate more alerts for better demo experience
   console.log('🚨 Generating alerts for high-risk transactions...');
   const highRiskTransactions = await prisma.transaction.findMany({
     where: {
       riskScore: {
-        gte: 0.7,
+        gte: 0.5, // Lower threshold for more demo alerts
       },
     },
-    take: 20,
+    take: 30, // More alerts for demo
   });
 
   let alertCount = 0;
@@ -196,9 +216,12 @@ async function main() {
         riskScore: transaction.riskScore!,
         reasons: [
           'High risk score detected',
-          `Transaction amount: ${transaction.amount}`,
+          `Transaction amount: ${Math.abs(transaction.amount.toNumber())} ${transaction.currency}`,
           `Merchant: ${transaction.merchant}`,
-        ],
+          transaction.mcc === '6011' ? 'ATM withdrawal outside normal pattern' : null,
+          transaction.mcc === '7995' ? 'Gambling transaction detected' : null,
+          transaction.riskScore! > 0.8 ? 'Multiple risk factors combined' : null,
+        ].filter(Boolean),
         status: 'PENDING',
         metadata: {
           transactionId: transaction.id,
