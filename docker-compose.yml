@@ -68,7 +68,7 @@ services:
     environment:
       NODE_ENV: development
       NEXT_PUBLIC_API_URL: http://localhost:3001/v1
-      API_URL: http://backend:3001/v1
+      API_URL: http://aegis-backend:3001/v1
     ports:
       - "3002:3000"
     volumes:

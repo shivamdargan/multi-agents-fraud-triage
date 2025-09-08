@@ -212,7 +212,7 @@ export default function EvalsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-64 overflow-y-auto">
-              {runs?.map((run: any) => (
+              {(Array.isArray(runs) ? runs : runs?.runs || []).map((run: any) => (
                 <div
                   key={run.id}
                   className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-accent"
@@ -237,7 +237,7 @@ export default function EvalsPage() {
                   </Badge>
                 </div>
               ))}
-              {(!runs || runs.length === 0) && (
+              {(!runs || (Array.isArray(runs) ? runs.length === 0 : (!runs.runs || runs.runs.length === 0))) && (
                 <p className="text-sm text-muted-foreground text-center py-4">
                   No evaluation runs yet
                 </p>
@@ -274,7 +274,7 @@ export default function EvalsPage() {
                 <div className="space-y-3">
                   <h4 className="font-medium">Test Results Details</h4>
                   <div className="max-h-32 overflow-y-auto space-y-2">
-                    {selectedRun.results?.map((result: any, idx: number) => (
+                    {(Array.isArray(selectedRun.results) ? selectedRun.results : []).map((result: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between p-2 bg-muted/50 rounded text-xs">
                         <div className="flex items-center gap-2">
                           {result.passed ? 
@@ -288,6 +288,9 @@ export default function EvalsPage() {
                         </Badge>
                       </div>
                     ))}
+                    {(!selectedRun.results || !Array.isArray(selectedRun.results) || selectedRun.results.length === 0) && (
+                      <p className="text-xs text-muted-foreground text-center py-2">No test results available</p>
+                    )}
                   </div>
                   
                   <div className="pt-2 border-t text-xs text-muted-foreground">

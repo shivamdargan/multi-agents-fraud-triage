@@ -1,0 +1,130 @@
+{
+  "id": "c71a19ae-d175-491c-8f96-76523c74c7ed",
+  "customerId": "cust_017",
+  "type": "MONTHLY_SPEND",
+  "status": "COMPLETED",
+  "content": {
+    "type": "MONTHLY_SPEND",
+    "generatedAt": "2025-09-08T00:56:43.034Z",
+    "insights": {
+      "customerId": "cust_017",
+      "period": "30d",
+      "summary": {
+        "totalSpend": 1200,
+        "averageTransaction": 1200,
+        "transactionCount": 1,
+        "uniqueMerchants": 1
+      },
+      "trends": {
+        "spendTrend": "stable",
+        "percentageChange": 0,
+        "comparisonPeriod": "2025-07-10 to 2025-08-09"
+      },
+      "categories": {
+        "categories": [
+          {
+            "mcc": "6011",
+            "category": "ATM",
+            "total": 1200,
+            "count": 1,
+            "percentage": 100
+          }
+        ]
+      },
+      "topMerchants": {
+        "merchants": [
+          {
+            "merchant": "ATM Withdrawal - BOA",
+            "total": 1200,
+            "count": 1,
+            "lastTransaction": "2025-09-07T02:16:54.244Z"
+          }
+        ]
+      },
+      "anomalies": []
+    },
+    "riskSignals": [
+      {
+        "id": "a01f9cc5-affc-4b91-9a12-06a5d7196ed4",
+        "customerId": "cust_017",
+        "type": "FRAUD",
+        "severity": "HIGH",
+        "riskScore": 0.8,
+        "reasons": [
+          "High risk score detected",
+          "Transaction amount: 1200 USD",
+          "Merchant: ATM Withdrawal - BOA",
+          "ATM withdrawal outside normal pattern"
+        ],
+        "status": "FALSE_POSITIVE",
+        "metadata": {
+          "mcc": "6011",
+          "amount": -1200,
+          "cardId": "card_017",
+          "merchant": "ATM Withdrawal - BOA",
+          "timestamp": "2025-09-07T02:16:54.244Z",
+          "transactionId": "txn_demo_009"
+        },
+        "triageData": {
+          "result": {
+            "signals": {
+              "devices": {
+                "score": 0.75,
+                "totalDevices": 2,
+                "untrustedDevices": 1
+              },
+              "history": {
+                "score": 0.1,
+                "alertCount": 1,
+                "chargebackCount": 0
+              },
+              "velocity": {
+                "score": 0.2,
+                "totalAmount": -1200,
+                "transactionCount": 1
+              }
+            },
+            "decision": "REVIEW",
+            "riskScore": 0.6299999999999999,
+            "timestamp": "2025-09-08T00:18:06.239Z",
+            "customerId": "cust_017",
+            "recommendations": [
+              "⚠️ Customer has previous fraud history - heightened vigilance required",
+              "🟡 Enhanced monitoring required for next 30 days",
+              "🔐 Request additional authentication for high-value transactions",
+              "📊 Review spending patterns for anomalies"
+            ]
+          },
+          "sessionId": "90cf1088-64ac-4608-8671-eea67e0a239e",
+          "timestamp": "2025-09-08T00:18:06.242Z"
+        },
+        "createdAt": "2025-09-07T23:49:54.254Z",
+        "updatedAt": "2025-09-08T00:18:20.387Z",
+        "resolvedAt": "2025-09-08T00:18:20.385Z"
+      }
+    ],
+    "recentTransactions": [
+      {
+        "id": "txn_demo_009",
+        "customerId": "cust_017",
+        "cardId": "card_017",
+        "mcc": "6011",
+        "merchant": "ATM Withdrawal - BOA",
+        "amount": "-1200",
+        "currency": "USD",
+        "timestamp": "2025-09-07T02:16:54.244Z",
+        "deviceId": "dev_unknown_003",
+        "geo": {
+          "lat": 32.7767,
+          "lon": -96.797,
+          "country": "US"
+        },
+        "riskScore": 0.8,
+        "status": "APPROVED",
+        "createdAt": "2025-09-07T23:49:54.245Z"
+      }
+    ]
+  },
+  "generatedAt": "2025-09-08T00:56:43.034Z",
+  "expiresAt": "2025-09-15T00:56:43.034Z"
+}

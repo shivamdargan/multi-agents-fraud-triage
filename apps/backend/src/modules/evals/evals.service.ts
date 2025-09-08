@@ -204,7 +204,34 @@ export class EvalsService {
         return await this.runAdvancedTestCase(testCase, startTime);
       }
       
-      // Legacy format
+      // Legacy format - check if expected exists and has required fields
+      if (!testCase.expected) {
+        // If no expected field at all, treat as advanced test case
+        if (testCase.input) {
+          return await this.runAdvancedTestCase(testCase, startTime);
+        }
+        
+        this.logger.warn(`Test case ${testCase.id} has invalid format`);
+        return {
+          id: testCase.id,
+          name: testCase.name,
+          passed: false,
+          error: 'Invalid test case format',
+          duration: Date.now() - startTime,
+        };
+      }
+      
+      if (!testCase.expected.decision || !testCase.expected.riskLevel) {
+        this.logger.warn(`Test case ${testCase.id} missing expected.decision or expected.riskLevel`);
+        return {
+          id: testCase.id,
+          name: testCase.name,
+          passed: false,
+          error: 'Invalid test case format - missing expected.decision or expected.riskLevel',
+          duration: Date.now() - startTime,
+        };
+      }
+      
       const result = await this.simulateDecision(testCase.input);
       const passed = 
         result.decision === testCase.expected.decision &&
@@ -297,8 +324,23 @@ export class EvalsService {
   }
 
   private calculatePrecision(results: any[]): number {
-    const truePositives = results.filter(r => r.passed && r.expected.decision === 'BLOCK').length;
-    const falsePositives = results.filter(r => !r.passed && r.actual?.decision === 'BLOCK').length;
+    const truePositives = results.filter(r => {
+      if (r.passed) {
+        // Check both old and new format
+        if (r.expected?.decision === 'BLOCK') return true;
+        if (r.expected?.risk === 'HIGH') return true;
+        if (r.actual?.riskLevel === 'HIGH' && r.checks?.some((c: any) => c.type === 'risk' && c.passed)) return true;
+      }
+      return false;
+    }).length;
+    
+    const falsePositives = results.filter(r => {
+      if (!r.passed) {
+        if (r.actual?.decision === 'BLOCK') return true;
+        if (r.actual?.riskLevel === 'HIGH') return true;
+      }
+      return false;
+    }).length;
     
     return truePositives + falsePositives > 0 
       ? truePositives / (truePositives + falsePositives)
@@ -306,8 +348,24 @@ export class EvalsService {
   }
 
   private calculateRecall(results: any[]): number {
-    const truePositives = results.filter(r => r.passed && (r.expected.decision === 'BLOCK' || r.expected.risk === 'HIGH')).length;
-    const falseNegatives = results.filter(r => !r.passed && (r.expected.decision === 'BLOCK' || r.expected.risk === 'HIGH')).length;
+    const truePositives = results.filter(r => {
+      if (r.passed) {
+        // Check both old and new format
+        if (r.expected?.decision === 'BLOCK') return true;
+        if (r.expected?.risk === 'HIGH') return true;
+        if (r.actual?.riskLevel === 'HIGH' && r.checks?.some((c: any) => c.type === 'risk' && c.passed)) return true;
+      }
+      return false;
+    }).length;
+    
+    const falseNegatives = results.filter(r => {
+      if (!r.passed) {
+        // Check both old and new format
+        if (r.expected?.decision === 'BLOCK') return true;
+        if (r.expected?.risk === 'HIGH') return true;
+      }
+      return false;
+    }).length;
     
     return truePositives + falseNegatives > 0
       ? truePositives / (truePositives + falseNegatives)

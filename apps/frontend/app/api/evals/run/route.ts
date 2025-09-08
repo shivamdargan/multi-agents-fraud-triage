@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1';
+// Use backend container name for server-side requests when running in Docker
+const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1';
 
 export async function POST(request: Request) {
   try {

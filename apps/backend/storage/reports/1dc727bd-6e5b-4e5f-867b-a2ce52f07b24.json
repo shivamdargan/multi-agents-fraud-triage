@@ -1,0 +1,71 @@
+{
+  "id": "1dc727bd-6e5b-4e5f-867b-a2ce52f07b24",
+  "customerId": "cust_006",
+  "type": "MONTHLY_SPEND",
+  "status": "COMPLETED",
+  "content": {
+    "type": "MONTHLY_SPEND",
+    "generatedAt": "2025-09-08T00:22:15.605Z",
+    "insights": {
+      "customerId": "cust_006",
+      "period": "30d",
+      "summary": {
+        "totalSpend": 43.2,
+        "averageTransaction": 43.2,
+        "transactionCount": 1,
+        "uniqueMerchants": 1
+      },
+      "trends": {
+        "spendTrend": "stable",
+        "percentageChange": 0,
+        "comparisonPeriod": "2025-07-10 to 2025-08-09"
+      },
+      "categories": {
+        "categories": [
+          {
+            "mcc": "5411",
+            "category": "Grocery",
+            "total": 43.2,
+            "count": 1,
+            "percentage": 100
+          }
+        ]
+      },
+      "topMerchants": {
+        "merchants": [
+          {
+            "merchant": "Trader Joe's",
+            "total": 43.2,
+            "count": 1,
+            "lastTransaction": "2025-09-06T04:54:54.247Z"
+          }
+        ]
+      },
+      "anomalies": []
+    },
+    "riskSignals": [],
+    "recentTransactions": [
+      {
+        "id": "txn_demo_016",
+        "customerId": "cust_006",
+        "cardId": "card_006",
+        "mcc": "5411",
+        "merchant": "Trader Joe's",
+        "amount": "-43.2",
+        "currency": "USD",
+        "timestamp": "2025-09-06T04:54:54.247Z",
+        "deviceId": "dev_006",
+        "geo": {
+          "lat": 42.3601,
+          "lon": -71.0589,
+          "country": "US"
+        },
+        "riskScore": 0,
+        "status": "APPROVED",
+        "createdAt": "2025-09-07T23:49:54.247Z"
+      }
+    ]
+  },
+  "generatedAt": "2025-09-08T00:22:15.605Z",
+  "expiresAt": "2025-09-15T00:22:15.605Z"
+}
