@@ -2,6 +2,9 @@
 
 A comprehensive fraud detection and customer support platform with AI-powered triage capabilities, built with Next.js, NestJS, PostgreSQL, and Redis.
 
+[Watch The Walkthrough Here](https://youtu.be/Kf5ppgOwOYg?si=W7y1EMWVdKNR7tTx)
+
+
 ## 🚀 Quick Start with Docker
 
 ### Prerequisites
